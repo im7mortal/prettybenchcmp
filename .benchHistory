@@ -1,0 +1,5 @@
+PASS
+BenchmarkToLatLon	10000000	       164 ns/op	       0 B/op	       0 allocs/op
+BenchmarkToLatLonWithNorthern	10000000	       163 ns/op	       0 B/op	       0 allocs/op
+BenchmarkFromLatLon	20000000	       142 ns/op	       0 B/op	       0 allocs/op
+ok  	github.com/im7mortal/UTM	6.613s
