@@ -242,7 +242,6 @@ func formatNs(ns float64) string {
 func getCurrentResult() *bytes.Buffer {
 	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
 	cmd.Env = []string{"GOPATH=/home/peter/gocode"}
-	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/UTM"
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stderr bytes.Buffer
