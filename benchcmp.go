@@ -13,12 +13,16 @@ import (
 	"text/tabwriter"
 
 	"golang.org/x/tools/benchmark/parse"
+	"os/exec"
+	"bytes"
+//	"io"
+	"strings"
+	"io"
 )
 
 var (
 	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed")
 	magSort     = flag.Bool("mag", false, "sort benchmarks by magnitude of change")
-	best        = flag.Bool("best", false, "compare best times from old and new")
 )
 
 const usageFooter = `
@@ -30,23 +34,101 @@ Benchcmp compares old and new for each benchmark.
 If -test.benchmem=true is added to the "go test" command
 benchcmp will also compare memory allocations.
 `
+var global string
+
+var hash = make(chan string)
 
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "usage: %s old.txt new.txt\n\n", os.Args[0])
-		flag.PrintDefaults()
-		fmt.Fprint(os.Stderr, usageFooter)
-		os.Exit(2)
+	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777) // todo if not exist
+	if err != nil {
+		fatal(err)
 	}
-	flag.Parse()
-	if flag.NArg() != 2 {
-		flag.Usage()
+	po, _ := file.Stat()
+	if po.Size() == 0 {
+		println("Created .benchHistory. Init history.")
+		_,_ = file.Write(getCurrentResult().Bytes())
+		file.Close()
+		return
+	}
+	if doHistoryExistInGit() {
+		_ = file.Truncate(0)
+		_,_ = file.Write(getCurrentResult().Bytes())
+		file.Close()
+		return
 	}
 
-	before := parseFile(flag.Arg(0))
-	after := parseFile(flag.Arg(1))
+	go getHash2()
 
+
+	scan := make([]byte, 4096)
+	_, _ = file.Read(scan)
+	str := string(scan)
+
+
+	currentHash := <-hash
+	bool2 := strings.Contains(str, "separator")
+	var strA []string
+	if bool2 {
+		strA = strings.Split(str, "separator")
+	} else {
+		strA = strings.Split(str, "PASS")
+	}
+
+
+	bool1 := strings.Contains(str, currentHash)
+
+	testStr := `
+ 91c9f3968af9604c0ce467ae9c0f4b1f43b76cb6
+
+PASS
+BenchmarkToLatLon	10000000	       160 ns/op	       0 B/op	       0 allocs/op
+BenchmarkToLatLonWithNorthern	10000000	       160 ns/op	       0 B/op	       0 allocs/op
+BenchmarkFromLatLon	20000000	       140 ns/op	       0 B/op	       0 allocs/op
+ok  	github.com/im7mortal/UTM	6.510s`
+
+	println(testStr[44:])
+
+	var yu *bytes.Buffer
+	if bool1 {
+		yu = bytes.NewBufferString(strA[len(strA) - 2])
+	} else {
+		yu = bytes.NewBufferString(strA[len(strA) - 1])
+	}
+
+
+
+	after := parsePipe()
+	before := parseFile(yu)
+	defer file.Close()
 	cmps, warnings := Correlate(before, after)
+
+
+	if bool1 {
+		_ = file.Truncate(0.)
+		 for i , l := range strA{
+			if i == len(strA) - 2 {
+				_,_ =  file.Write([]byte(l[:len(l) - 2]))
+				break
+			} else {
+				_,_ =  file.Write([]byte(l + "separator"))
+			}
+		 }
+
+	}
+
+
+
+
+
+	file.Write([]byte(currentHash))
+	file.Write([]byte("\n\n"+ global))
+
+
+
+
+
+
+
 
 	for _, warn := range warnings {
 		fmt.Fprintln(os.Stderr, warn)
@@ -137,37 +219,22 @@ func fatal(msg interface{}) {
 	os.Exit(1)
 }
 
-func parseFile(path string) parse.Set {
-	f, err := os.Open(path)
+func parseFile(r io.Reader) (parse.Set) {
+
+	bb, err := parse.ParseSet(r)
 	if err != nil {
 		fatal(err)
-	}
-	defer f.Close()
-	bb, err := parse.ParseSet(f)
-	if err != nil {
-		fatal(err)
-	}
-	if *best {
-		selectBest(bb)
 	}
 	return bb
 }
 
-func selectBest(bs parse.Set) {
-	for name, bb := range bs {
-		if len(bb) < 2 {
-			continue
-		}
-		ord := bb[0].Ord
-		best := bb[0]
-		for _, b := range bb {
-			if b.NsPerOp < best.NsPerOp {
-				b.Ord = ord
-				best = b
-			}
-		}
-		bs[name] = []*parse.Benchmark{best}
+func parsePipe() parse.Set {
+	r := getCurrentResult()
+	bb, err := parse.ParseSet(r)
+	if err != nil {
+		fatal(err)
 	}
+	return bb
 }
 
 // formatNs formats ns measurements to expose a useful amount of
@@ -181,4 +248,59 @@ func formatNs(ns float64) string {
 		prec = 1
 	}
 	return strconv.FormatFloat(ns, 'f', prec, 64)
+}
+
+func getCurrentResult() *bytes.Buffer {
+	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
+	cmd.Env = []string{"GOPATH=/home/peter/gocode"}
+	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/UTM"
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+	}
+	global = out.String()
+	return &out
+}
+
+
+func doHistoryExistInGit() bool {
+	//http://stackoverflow.com/questions/2405305/git-how-to-tell-if-a-file-is-git-tracked-by-shell-exit-code
+	cmd := exec.Command("git", "ls-files", ".benchHistory")
+
+	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/UTM" // todo it hack
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+
+	}
+	return strings.Contains(out.String(), ".benchHistory")
+}
+
+
+
+
+
+func getHash2() {
+	cmd := exec.Command("git", "log", "-1", "--pretty=tformat:%H", "-p", ".benchHistory")
+
+	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/UTM" // todo it hack
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String()) //todo err from console
+	}
+	str := out.String()
+	strA := strings.Split(str, "\n")
+	hash <- "\n\nseparator " + strA[0]
+	close(hash)
 }
