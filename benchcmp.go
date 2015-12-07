@@ -258,6 +258,9 @@ func getCurrentResult() *bytes.Buffer {
 	cmd.Stdout = &out
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
+	_, _ = os.Stdout.Write([]byte("Start benchmarks\n"))
+	_, _ = os.Stdout.Write([]byte("************************************************************\n"))
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
@@ -272,7 +275,7 @@ func doHistoryExistInGit() bool {
 	//http://stackoverflow.com/questions/2405305/git-how-to-tell-if-a-file-is-git-tracked-by-shell-exit-code
 	cmd := exec.Command("git", "ls-files", ".benchHistory")
 
-	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/UTM" // todo it hack
+	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/benchcmp2" // todo it hack
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
