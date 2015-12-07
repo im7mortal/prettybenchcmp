@@ -48,9 +48,9 @@ func main() {
 		println("Created .benchHistory. Init history.")
 		_,_ = file.Write(getCurrentResult().Bytes())
 		file.Close()
-		return
+		os.Exit(1)
 	}
-	if doHistoryExistInGit() {
+	if !doHistoryExistInGit() {
 		_ = file.Truncate(0)
 		_,_ = file.Write(getCurrentResult().Bytes())
 		file.Close()
@@ -76,17 +76,6 @@ func main() {
 
 
 	bool1 := strings.Contains(str, currentHash)
-
-	testStr := `
- 91c9f3968af9604c0ce467ae9c0f4b1f43b76cb6
-
-PASS
-BenchmarkToLatLon	10000000	       160 ns/op	       0 B/op	       0 allocs/op
-BenchmarkToLatLonWithNorthern	10000000	       160 ns/op	       0 B/op	       0 allocs/op
-BenchmarkFromLatLon	20000000	       140 ns/op	       0 B/op	       0 allocs/op
-ok  	github.com/im7mortal/UTM	6.510s`
-
-	println(testStr[44:])
 
 	var yu *bytes.Buffer
 	if bool1 {
@@ -258,9 +247,9 @@ func getCurrentResult() *bytes.Buffer {
 	cmd.Stdout = &out
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
-	_, _ = os.Stdout.Write([]byte("Start benchmarks\n"))
-	_, _ = os.Stdout.Write([]byte("************************************************************\n"))
-	cmd.Stdout = os.Stdout
+//	_, _ = os.Stdout.Write([]byte("Start benchmarks\n"))
+//	_, _ = os.Stdout.Write([]byte("************************************************************\n"))
+//	cmd.Stdout = os.Stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
@@ -275,7 +264,6 @@ func doHistoryExistInGit() bool {
 	//http://stackoverflow.com/questions/2405305/git-how-to-tell-if-a-file-is-git-tracked-by-shell-exit-code
 	cmd := exec.Command("git", "ls-files", ".benchHistory")
 
-	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/benchcmp2" // todo it hack
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
@@ -292,7 +280,6 @@ func doHistoryExistInGit() bool {
 func getHash2() {
 	cmd := exec.Command("git", "log", "-1", "--pretty=tformat:%H", "-p", ".benchHistory")
 
-	cmd.Dir = "/home/peter/gocode/src/github.com/im7mortal/UTM" // todo it hack
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stderr bytes.Buffer
