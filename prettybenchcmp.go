@@ -53,7 +53,7 @@ func main() {
 		os.Stdout.Write(result)
 		_,_ = file.Write(result)
 		file.Close()
-		os.Exit(1)
+		return
 	}
 
 	go getHash2()
