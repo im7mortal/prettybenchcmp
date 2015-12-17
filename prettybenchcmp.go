@@ -43,18 +43,17 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
-	po, _ := file.Stat()
-	if po.Size() == 0 {
-		println("Created .benchHistory. Init history.")
-		_,_ = file.Write(getCurrentResult().Bytes())
-		file.Close()
-		os.Exit(1)
-	}
 	if !doHistoryExistInGit() {
 		_ = file.Truncate(0)
-		_,_ = file.Write(getCurrentResult().Bytes())
+	}
+	po, _ := file.Stat()
+	if po.Size() == 0 {
+		result := getCurrentResult().Bytes()
+		os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
+		os.Stdout.Write(result)
+		_,_ = file.Write(result)
 		file.Close()
-		return
+		os.Exit(1)
 	}
 
 	go getHash2()
