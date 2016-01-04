@@ -10,3 +10,100 @@ PASS
 BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+separator 09d84a852e08a8fe267aacad58a2e44c678c75a9
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       943 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.914s
+
+
+
+separator 98bd560a0a671da44c7dadafa2cfbfee87872f2d
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       187 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       966 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	4.970s
