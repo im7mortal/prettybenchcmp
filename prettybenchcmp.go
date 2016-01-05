@@ -50,8 +50,9 @@ func main() {
 	go func() {
 		currentResult <- getCurrentResult()
 	}()
-
+	go getHash2()
 	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
+	defer file.Close()
 	if err != nil {
 		fatal(err)
 	}
@@ -64,11 +65,10 @@ func main() {
 		os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
 		os.Stdout.Write(result)
 		_,_ = file.Write(result)
-		file.Close()
 		return
 	}
 
-	go getHash2()
+
 
 
 
@@ -122,7 +122,6 @@ func main() {
 
 	after := parsePipe()
 	before := parseFile(yu)
-	defer file.Close()
 	cmps, warnings := Correlate(before, after)
 
 
