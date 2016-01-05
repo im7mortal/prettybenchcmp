@@ -60,7 +60,8 @@ func main() {
 		_ = file.Truncate(0)
 	}
 	po, _ := file.Stat()
-	if po.Size() == 0 {
+	fileSize := po.Size()
+	if fileSize == 0 {
 		result := getCurrentResult().Bytes()
 		os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
 		os.Stdout.Write(result)
@@ -71,53 +72,12 @@ func main() {
 
 
 
-
-	var results []string
-	var lastPart string
-
-	for ;; {
-		scan := make([]byte, 4096)
-		count, err := file.Read(scan)
-		if err == io.EOF {
-			break
-		}
-		var str string
-		var stringSlice []string
-		str = string(scan)
-		str = lastPart + str
-		lastPart = ""
-		isThereSeparator := strings.Contains(str, "separator")
-		if count == 4096 {
-			if isThereSeparator {
-				stringSlice = strings.Split(str, "separator")
-				lastPart = stringSlice[len(stringSlice) - 1]
-				stringSlice = stringSlice[:len(stringSlice) - 1]
-			} else {
-				lastPart = str
-				continue
-			}
-		} else {
-			if isThereSeparator {
-				stringSlice = strings.Split(str, "separator")
-			} else {
-				results = append(results, str)
-				continue
-			}
-		}
-		for _, str := range stringSlice {
-			results = append(results, str)
-		}
-	}
 	currentHash := <-hash
-	lastElement := results[len(results) - 1]
-	wasNotCommited := strings.Contains(lastElement, currentHash)
-	var yu *bytes.Buffer
-	if wasNotCommited {
-		yu = bytes.NewBufferString(results[len(results) - 2])
-	} else {
-		yu = bytes.NewBufferString(results[len(results) - 1])
-	}
 
+	lastResult := getLastBenchmark(file, currentHash)
+	wasNotCommited := strings.Contains(lastResult, currentHash)
+	var yu *bytes.Buffer
+	yu = bytes.NewBufferString(lastResult)
 
 
 	after := parsePipe()
@@ -126,23 +86,14 @@ func main() {
 
 
 	if wasNotCommited {
-		_ = file.Truncate(0.)
-		 for i , l := range results{
-			if i == len(results) - 2 {
-				_,_ =  file.Write([]byte(l[:len(l) - 2]))
-				break
-			} else {
-				_,_ =  file.Write([]byte(l + "separator"))
-			}
-		 }
-
+		_ = file.Truncate(fileSize - int64(len("separator " + lastResult)))
 	}
 
 
 
 
 
-	file.Write([]byte("\n\nseparator " + currentHash))
+	file.Write([]byte("\nseparator " + currentHash))
 	file.Write([]byte("\n\n"+ global))
 
 
@@ -320,4 +271,46 @@ func getHash2() {
 	strA := strings.Split(str, "\n")
 	hash <- strA[0]
 	close(hash)
+}
+
+func getLastBenchmark(file *os.File, currentHash string) string {
+	var results []string
+	var lastPart string
+
+	for ;; {
+		scan := make([]byte, 4096)
+		count, err := file.Read(scan)
+		if err == io.EOF {
+			break
+		}
+		var str string
+		var stringSlice []string
+		str = string(scan)
+		str = lastPart + str
+		lenLastPart := len(lastPart)
+		lastPart = ""
+		isThereSeparator := strings.Contains(str, "separator")
+		if count == 4096 { // todo potentional error
+			if isThereSeparator {
+				stringSlice = strings.Split(str, "separator")
+				lastPart = stringSlice[len(stringSlice) - 1]
+				stringSlice = stringSlice[:len(stringSlice) - 1]
+			} else {
+				lastPart = str
+				continue
+			}
+		} else {
+			if isThereSeparator {
+				temp := []byte(str)
+				stringSlice = strings.Split(string(temp[: lenLastPart + count]), "separator")
+			} else {
+				results = append(results, str)
+				continue
+			}
+		}
+		for _, str := range stringSlice {
+			results = append(results, str)
+		}
+	}
+	return results[len(results) - 1]
 }
