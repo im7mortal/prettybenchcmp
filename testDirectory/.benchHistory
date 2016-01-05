@@ -590,3 +590,10 @@ PASS
 BenchmarkUnquoteEasy-4	10000000	       212 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard-4	 1000000	      1255 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp/testDirectory	3.604s
+
+yoshkarola 676b76774e427d543427f71e9199b37708227675
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       195 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 1000000	      1111 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	3.284s

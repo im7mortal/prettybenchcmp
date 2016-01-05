@@ -78,36 +78,19 @@ func main() {
 
 
 	currentHash := <-hash
-
 	lastResult := getLastBenchmark(file, currentHash)
 	wasNotCommited := strings.Contains(lastResult, currentHash)
 	var yu *bytes.Buffer
 	yu = bytes.NewBufferString(lastResult)
-
-
 	after := parsePipe()
 	before := parseFile(yu)
-	cmps, warnings := Correlate(before, after)
-
-
 	if wasNotCommited {
 		_ = file.Truncate(fileSize - int64(len(SEPARATOR + " " + lastResult)))
 	}
-
-
-
-
-
 	file.Write([]byte("\n" + SEPARATOR + " " + currentHash))
 	file.Write([]byte("\n\n"+ global))
 
-
-
-
-
-
-
-
+	cmps, warnings := Correlate(before, after)
 	for _, warn := range warnings {
 		fmt.Fprintln(os.Stderr, warn)
 	}
@@ -197,23 +180,6 @@ func fatal(msg interface{}) {
 	os.Exit(1)
 }
 
-func parseFile(r io.Reader) (parse.Set) {
-
-	bb, err := parse.ParseSet(r)
-	if err != nil {
-		fatal(err)
-	}
-	return bb
-}
-
-func parsePipe() parse.Set {
-	r := getCurrentResult()
-	bb, err := parse.ParseSet(r)
-	if err != nil {
-		fatal(err)
-	}
-	return bb
-}
 
 // formatNs formats ns measurements to expose a useful amount of
 // precision. It mirrors the ns precision logic of testing.B.
@@ -226,6 +192,21 @@ func formatNs(ns float64) string {
 		prec = 1
 	}
 	return strconv.FormatFloat(ns, 'f', prec, 64)
+}
+func parseFile(r io.Reader) (parse.Set) {
+	bb, err := parse.ParseSet(r)
+	if err != nil {
+		fatal(err)
+	}
+	return bb
+}
+func parsePipe() parse.Set {
+	r := getCurrentResult()
+	bb, err := parse.ParseSet(r)
+	if err != nil {
+		fatal(err)
+	}
+	return bb
 }
 
 func getCurrentResult() *bytes.Buffer {
