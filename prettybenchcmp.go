@@ -71,10 +71,12 @@ func main() {
 	go getHash2()
 
 
-	scan := make([]byte, 4096)
+
 	var results []string
 	var lastPart string
+
 	for ;; {
+		scan := make([]byte, 4096)
 		count, err := file.Read(scan)
 		if err == io.EOF {
 			break
@@ -83,32 +85,32 @@ func main() {
 		var stringSlice []string
 		str = string(scan)
 		str = lastPart + str
-		println(str)
+		lastPart = ""
 		isThereSeparator := strings.Contains(str, "separator")
 		if count == 4096 {
 			if isThereSeparator {
 				stringSlice = strings.Split(str, "separator")
 				lastPart = stringSlice[len(stringSlice) - 1]
-				stringSlice = stringSlice[:len(stringSlice)]
+				stringSlice = stringSlice[:len(stringSlice) - 1]
 			} else {
 				lastPart = str
+				continue
 			}
 		} else {
 			if isThereSeparator {
 				stringSlice = strings.Split(str, "separator")
 			} else {
 				results = append(results, str)
+				continue
 			}
 		}
 		for _, str := range stringSlice {
 			results = append(results, str)
 		}
 	}
-
 	currentHash := <-hash
-
-	lstElement := results[len(results) - 1]
-	wasNotCommited := strings.Contains(lstElement, currentHash)
+	lastElement := results[len(results) - 1]
+	wasNotCommited := strings.Contains(lastElement, currentHash)
 	var yu *bytes.Buffer
 	if wasNotCommited {
 		yu = bytes.NewBufferString(results[len(results) - 2])
