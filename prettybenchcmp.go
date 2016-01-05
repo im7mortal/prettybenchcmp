@@ -39,15 +39,19 @@ var global string
 var hash = make(chan string)
 
 func main() {
-	cmd := exec.Command("gdit")
+	cmd := exec.Command("git", "status")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
 		fatal("git isn't exist\n" + fmt.Sprint(err) + ": " + stderr.String())
 	}
+	var currentResult chan *bytes.Buffer
+	go func() {
+		currentResult <- getCurrentResult()
+	}()
 
-	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777) // todo if not exist
+	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
 	if err != nil {
 		fatal(err)
 	}
@@ -265,14 +269,10 @@ func getCurrentResult() *bytes.Buffer {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stderr bytes.Buffer
-	cmd.Stdout = &out
-//	_, _ = os.Stdout.Write([]byte("Start benchmarks\n"))
-//	_, _ = os.Stdout.Write([]byte("************************************************************\n"))
-//	cmd.Stdout = os.Stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		fatal(fmt.Sprint(err) + ": " + stderr.String())
 	}
 	global = out.String()
 	return &out
