@@ -213,11 +213,11 @@ func getCurrentResult() *bytes.Buffer {
 	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
+	var stdErr bytes.Buffer
+	cmd.Stderr = &stdErr
 	err := cmd.Run()
 	if err != nil {
-		fatal(fmt.Sprint(err) + ": " + stderr.String())
+		fatal(fmt.Sprint(err) + ": " + stdErr.String())
 	}
 	global = out.String()
 	return &out
