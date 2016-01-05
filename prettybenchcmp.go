@@ -34,6 +34,10 @@ Benchcmp compares old and new for each benchmark.
 If -test.benchmem=true is added to the "go test" command
 benchcmp will also compare memory allocations.
 `
+
+// SEPARATOR contain string separator
+const SEPARATOR = "separator"
+
 var global string
 
 var hash = make(chan string)
@@ -86,14 +90,14 @@ func main() {
 
 
 	if wasNotCommited {
-		_ = file.Truncate(fileSize - int64(len("separator " + lastResult)))
+		_ = file.Truncate(fileSize - int64(len(SEPARATOR + " " + lastResult)))
 	}
 
 
 
 
 
-	file.Write([]byte("\nseparator " + currentHash))
+	file.Write([]byte("\n" + SEPARATOR + " " + currentHash))
 	file.Write([]byte("\n\n"+ global))
 
 
@@ -289,10 +293,10 @@ func getLastBenchmark(file io.Reader, currentHash string) string {
 		str = lastPart + str
 		lenLastPart := len(lastPart)
 		lastPart = ""
-		isThereSeparator := strings.Contains(str, "separator")
+		isThereSeparator := strings.Contains(str, SEPARATOR)
 		if count == 4096 {
 			if isThereSeparator {
-				stringSlice = strings.Split(str, "separator")
+				stringSlice = strings.Split(str, SEPARATOR)
 				lastPart = stringSlice[len(stringSlice) - 1]
 				stringSlice = stringSlice[:len(stringSlice) - 1]
 			} else {
@@ -302,7 +306,7 @@ func getLastBenchmark(file io.Reader, currentHash string) string {
 		} else {
 			if isThereSeparator {
 				temp := []byte(str)
-				stringSlice = strings.Split(string(temp[: lenLastPart + count]), "separator")
+				stringSlice = strings.Split(string(temp[: lenLastPart + count]), SEPARATOR)
 			} else {
 				results = append(results, str)
 				continue

@@ -583,3 +583,10 @@ PASS
 BenchmarkUnquoteEasy-4	10000000	       241 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard-4	 1000000	      1321 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp/testDirectory	3.981s
+
+separator 13e734f22348f71fc7f2c92d63df3dea6b34cb4d
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       212 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 1000000	      1255 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp/testDirectory	3.604s
