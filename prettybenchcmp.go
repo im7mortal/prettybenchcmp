@@ -39,6 +39,14 @@ var global string
 var hash = make(chan string)
 
 func main() {
+	cmd := exec.Command("gdit")
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fatal("git isn't exist\n" + fmt.Sprint(err) + ": " + stderr.String())
+	}
+
 	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777) // todo if not exist
 	if err != nil {
 		fatal(err)
@@ -86,12 +94,6 @@ func main() {
 		}
 	}
 
-	/*bool2 := strings.Contains(str, "separator")
-	if bool2 {
-		results = strings.Split(str, "separator")
-	} else {
-		results = strings.Split(str, "PASS")
-	}*/
 	currentHash := <-hash
 
 	lstElement := results[len(results) - 1]
