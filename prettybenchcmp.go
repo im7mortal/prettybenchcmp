@@ -273,7 +273,7 @@ func getHash2() {
 	close(hash)
 }
 
-func getLastBenchmark(file *os.File, currentHash string) string {
+func getLastBenchmark(file io.Reader, currentHash string) string {
 	var results []string
 	var lastPart string
 
@@ -290,7 +290,7 @@ func getLastBenchmark(file *os.File, currentHash string) string {
 		lenLastPart := len(lastPart)
 		lastPart = ""
 		isThereSeparator := strings.Contains(str, "separator")
-		if count == 4096 { // todo potentional error
+		if count == 4096 {
 			if isThereSeparator {
 				stringSlice = strings.Split(str, "separator")
 				lastPart = stringSlice[len(stringSlice) - 1]
