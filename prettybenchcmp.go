@@ -36,7 +36,8 @@ benchcmp will also compare memory allocations.
 `
 
 // SEPARATOR contain string separator
-const SEPARATOR = "separator"
+// i doubt that somebody will use my hometown's name in name of benchmark function
+const SEPARATOR = "yoshkarola"
 
 var global string
 
