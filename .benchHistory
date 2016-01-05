@@ -10,3 +10,11 @@ PASS
 BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/benchcmp2	3.141s
+
+
+separator 99962885e0efa8d6c727e58380163c2daf4f506a
+
+PASS
+BenchmarkUnquoteEasy-4	10000000	       185 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard-4	 2000000	       949 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp	4.927s

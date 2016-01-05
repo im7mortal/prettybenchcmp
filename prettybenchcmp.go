@@ -59,28 +59,48 @@ func main() {
 	go getHash2()
 
 
-	scan := make([]byte, 4096)
-	_, _ = file.Read(scan)
-	str := string(scan)
+//	scan := make([]byte, 4096)
+	scan := make([]byte, 8192)
+	var str string
+	var results []string
+	var stringSlice []string
+	for ;; {
+		count, err := file.Read(scan)
+		if err == io.EOF {
+			break
+		}
+		str = string(scan)
+		isThereSeparator := strings.Contains(str, "separator")
+		if count == 4096 {
+			//TODO
+		} else {
+			if isThereSeparator {
+				stringSlice = strings.Split(str, "separator")
+			} else {
+				results = append(results, str)
+			}
 
-
-	currentHash := <-hash
-	bool2 := strings.Contains(str, "separator")
-	var strA []string
-	if bool2 {
-		strA = strings.Split(str, "separator")
-	} else {
-		strA = strings.Split(str, "PASS")
+			for _, str := range stringSlice {
+				results = append(results, str)
+			}
+		}
 	}
 
-
-	bool1 := strings.Contains(str, currentHash)
-
-	var yu *bytes.Buffer
-	if bool1 {
-		yu = bytes.NewBufferString(strA[len(strA) - 2])
+	/*bool2 := strings.Contains(str, "separator")
+	if bool2 {
+		results = strings.Split(str, "separator")
 	} else {
-		yu = bytes.NewBufferString(strA[len(strA) - 1])
+		results = strings.Split(str, "PASS")
+	}*/
+	currentHash := <-hash
+
+	lstElement := results[len(results) - 1]
+	wasNotCommited := strings.Contains(lstElement, currentHash)
+	var yu *bytes.Buffer
+	if wasNotCommited {
+		yu = bytes.NewBufferString(results[len(results) - 2])
+	} else {
+		yu = bytes.NewBufferString(results[len(results) - 1])
 	}
 
 
@@ -91,10 +111,10 @@ func main() {
 	cmps, warnings := Correlate(before, after)
 
 
-	if bool1 {
+	if wasNotCommited {
 		_ = file.Truncate(0.)
-		 for i , l := range strA{
-			if i == len(strA) - 2 {
+		 for i , l := range results{
+			if i == len(results) - 2 {
 				_,_ =  file.Write([]byte(l[:len(l) - 2]))
 				break
 			} else {
@@ -108,7 +128,7 @@ func main() {
 
 
 
-	file.Write([]byte(currentHash))
+	file.Write([]byte("\n\nseparator " + currentHash))
 	file.Write([]byte("\n\n"+ global))
 
 
@@ -240,7 +260,6 @@ func formatNs(ns float64) string {
 
 func getCurrentResult() *bytes.Buffer {
 	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
-	cmd.Env = []string{"GOPATH=/home/peter/gocode"}
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stderr bytes.Buffer
@@ -289,6 +308,6 @@ func getHash2() {
 	}
 	str := out.String()
 	strA := strings.Split(str, "\n")
-	hash <- "\n\nseparator " + strA[0]
+	hash <- strA[0]
 	close(hash)
 }
