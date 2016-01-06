@@ -2,17 +2,35 @@ package main
 
 import (
 	"testing"
-	"strconv"
+	"os"
 )
 
-func BenchmarkUnquoteEasy(b *testing.B) {
+func BenchmarkGetLastBenchmark3651(b *testing.B) {
+	b.ResetTimer()
+	file, err := os.OpenFile("testDirectory/.benchHistory3651", os.O_RDONLY, 0777)
+	defer file.Close()
+	if err != nil {
+		b.Fatal(err)
+	}
+	po, _ := file.Stat()
+	fileSize := po.Size()
+	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		strconv.Unquote(`"Give me a rock, paper and scissors and I will move the world."`)
+		getLastBenchmark(file, "b960e287b86f7018b43ff81582912ccce89b3678", fileSize)
 	}
 }
 
-func BenchmarkUnquoteHard(b *testing.B)  {
+func BenchmarkGetLastBenchmark24456(b *testing.B) {
+	b.ResetTimer()
+	file, err := os.OpenFile("testDirectory/.benchHistory24456", os.O_RDONLY, 0777)
+	defer file.Close()
+	if err != nil {
+		b.Fatal(err)
+	}
+	po, _ := file.Stat()
+	fileSize := po.Size()
+	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		strconv.Unquote(`"\x47ive me a \x72ock, \x70aper and \x73cissors and \x49 will move the world."`)
+		getLastBenchmark(file, "b960e287b86f7018b43ff81582912ccce89b3678", fileSize)
 	}
 }

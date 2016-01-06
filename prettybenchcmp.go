@@ -78,15 +78,11 @@ func main() {
 
 
 	currentHash := <-hash
-	lastResult := getLastBenchmark(file, currentHash)
-	wasNotCommited := strings.Contains(lastResult, currentHash)
+	lastResult := getLastBenchmark(file, currentHash, fileSize)
 	var yu *bytes.Buffer
 	yu = bytes.NewBufferString(lastResult)
 	after := parsePipe()
 	before := parseFile(yu)
-	if wasNotCommited {
-		_ = file.Truncate(fileSize - int64(len(SEPARATOR + " " + lastResult)))
-	}
 	file.Write([]byte("\n" + SEPARATOR + " " + currentHash))
 	file.Write([]byte("\n\n"+ global))
 
@@ -259,7 +255,7 @@ func getHash() {
 	close(hash)
 }
 
-func getLastBenchmark(file io.Reader, currentHash string) string {
+func getLastBenchmark(file *os.File, currentHash string, fileSize int64) string {
 	results := make([]string, 1)
 	var lastPart string
 
@@ -298,5 +294,11 @@ func getLastBenchmark(file io.Reader, currentHash string) string {
 			results = append(results, str)
 		}
 	}
-	return results[len(results) - 1]
+	lastResult := results[len(results) - 1]
+	wasNotCommited := strings.Contains(lastResult, currentHash)
+	if wasNotCommited {
+		_ = file.Truncate(fileSize - int64(len(SEPARATOR + " " + lastResult)))
+		lastResult = results[len(results) - 2]
+	}
+	return lastResult
 }

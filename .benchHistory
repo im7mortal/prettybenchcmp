@@ -30,3 +30,10 @@ PASS
 BenchmarkDoHistoryExistInGit-4 	    2000	   1187984 ns/op	   10790 B/op	     132 allocs/op
 BenchmarkGetLastBenchmark3651-4	 1000000	      1994 ns/op	    4096 B/op	       1 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp	4.496s
+
+yoshkarola 6a0bdcddd243d670889c4bc357933258387f8636
+
+PASS
+BenchmarkGetLastBenchmark3651-4 	 3000000	       511 ns/op	       0 B/op	       0 allocs/op
+BenchmarkGetLastBenchmark24456-4	 3000000	       509 ns/op	       0 B/op	       0 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp	4.104s
