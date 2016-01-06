@@ -55,7 +55,7 @@ func main() {
 	go func() {
 		currentResult <- getCurrentResult()
 	}()
-	go getHash2()
+	go getHash()
 	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
 	defer file.Close()
 	if err != nil {
@@ -241,7 +241,7 @@ func doHistoryExistInGit() bool {
 
 
 
-func getHash2() {
+func getHash() {
 	cmd := exec.Command("git", "log", "-1", "--pretty=tformat:%H", "-p", ".benchHistory")
 
 	var out bytes.Buffer
@@ -260,7 +260,7 @@ func getHash2() {
 }
 
 func getLastBenchmark(file io.Reader, currentHash string) string {
-	var results []string
+	results := make([]string, 1)
 	var lastPart string
 
 	for ;; {
