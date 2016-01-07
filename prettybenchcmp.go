@@ -15,7 +15,6 @@ import (
 	"golang.org/x/tools/benchmark/parse"
 	"os/exec"
 	"bytes"
-//	"io"
 	"strings"
 	"io"
 )
@@ -23,17 +22,8 @@ import (
 var (
 	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed")
 	magSort     = flag.Bool("mag", false, "sort benchmarks by magnitude of change")
+	best        = flag.Bool("best", false, "compare best times from old and new")
 )
-
-const usageFooter = `
-Each input file should be from:
-	go test -run=NONE -bench=. > [old,new].txt
-
-Benchcmp compares old and new for each benchmark.
-
-If -test.benchmem=true is added to the "go test" command
-benchcmp will also compare memory allocations.
-`
 
 // SEPARATOR contain string separator
 // i doubt that somebody will use my hometown's name in name of benchmark function
@@ -81,8 +71,8 @@ func main() {
 	lastResult := getLastBenchmark(file, currentHash, fileSize)
 	var yu *bytes.Buffer
 	yu = bytes.NewBufferString(lastResult)
-	after := parsePipe()
-	before := parseFile(yu)
+	after := parseBenchmarkData(getCurrentResult())
+	before := parseBenchmarkData(yu)
 	file.Write([]byte("\n" + SEPARATOR + " " + currentHash))
 	file.Write([]byte("\n\n"+ global))
 
@@ -176,6 +166,22 @@ func fatal(msg interface{}) {
 	os.Exit(1)
 }
 
+func selectBest(bs parse.Set) {
+	for name, bb := range bs {
+		if len(bb) < 2 {
+			continue
+		}
+		ord := bb[0].Ord
+		best := bb[0]
+		for _, b := range bb {
+			if b.NsPerOp < best.NsPerOp {
+				b.Ord = ord
+				best = b
+			}
+		}
+		bs[name] = []*parse.Benchmark{best}
+	}
+}
 
 // formatNs formats ns measurements to expose a useful amount of
 // precision. It mirrors the ns precision logic of testing.B.
@@ -189,18 +195,13 @@ func formatNs(ns float64) string {
 	}
 	return strconv.FormatFloat(ns, 'f', prec, 64)
 }
-func parseFile(r io.Reader) (parse.Set) {
+func parseBenchmarkData(r io.Reader) (parse.Set) {
 	bb, err := parse.ParseSet(r)
 	if err != nil {
 		fatal(err)
 	}
-	return bb
-}
-func parsePipe() parse.Set {
-	r := getCurrentResult()
-	bb, err := parse.ParseSet(r)
-	if err != nil {
-		fatal(err)
+	if *best {
+		selectBest(bb)
 	}
 	return bb
 }
