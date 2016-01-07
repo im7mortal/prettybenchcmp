@@ -41,9 +41,9 @@ func main() {
 	if err != nil {
 		fatal("git isn't exist\n" + fmt.Sprint(err) + ": " + stderr.String())
 	}
-	var currentResult chan *bytes.Buffer
+	var currentResultChan chan *bytes.Buffer
 	go func() {
-		currentResult <- getCurrentResult()
+		currentResultChan <- getCurrentResult()
 	}()
 	go getHash()
 	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
@@ -57,7 +57,8 @@ func main() {
 	po, _ := file.Stat()
 	fileSize := po.Size()
 	if fileSize == 0 {
-		result := getCurrentResult().Bytes()
+		currentResult := <-currentResultChan
+		result := currentResult.Bytes()
 		os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
 		os.Stdout.Write(result)
 		_,_ = file.Write(result)
