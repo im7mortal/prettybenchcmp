@@ -61,7 +61,10 @@ func main() {
 		result := currentResult.Bytes()
 		os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
 		os.Stdout.Write(result)
-		_,_ = file.Write(result)
+		_, err = file.Write(result)
+		if err != nil {
+			os.Stdout.Write([]byte("\nRESULT WAS NOT WRITTEN. ERROR: " + err.Error()))
+		}
 		return
 	}
 
