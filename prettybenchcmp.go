@@ -29,6 +29,30 @@ var (
 // i doubt that somebody will use my hometown's name in name of benchmark function
 const SEPARATOR = "yoshkarola"
 
+type benchmarkObject struct {
+	currentHash   string
+	file          *os.File
+	fileSize          int64
+	currentResult *bytes.Buffer
+	lastResult    *bytes.Buffer
+}
+
+func (b *benchmarkObject) doHistoryExistInGit()  {
+	//http://stackoverflow.com/questions/2405305/git-how-to-tell-if-a-file-is-git-tracked-by-shell-exit-code
+	cmd := exec.Command("git", "ls-files", ".benchHistory")
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+
+	}
+	if !strings.Contains(out.String(), ".benchHistory") {
+		_ = b.file.Truncate(0)
+	}
+}
+
+
 var global string
 
 var hash = make(chan string)
@@ -51,9 +75,10 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
-	if !doHistoryExistInGit() {
-		_ = file.Truncate(0)
+	benchObject := benchmarkObject{
+		file: file,
 	}
+	benchObject.doHistoryExistInGit()
 	po, _ := file.Stat()
 	fileSize := po.Size()
 	if fileSize == 0 {
