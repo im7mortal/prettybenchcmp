@@ -78,6 +78,53 @@ func (b *benchmarkObject) fileExist() {
 	}
 
 }
+func (b *benchmarkObject) getLastBenchmark() {
+	results := make([]string, 1)
+	var lastPart string
+
+	for ;; {
+		scan := make([]byte, 4096)
+		count, err := b.file.Read(scan)
+		if err == io.EOF {
+			break
+		}
+		var str string
+		var stringSlice []string
+		str = string(scan)
+		str = lastPart + str
+		lenLastPart := len(lastPart)
+		lastPart = ""
+		isThereSeparator := strings.Contains(str, SEPARATOR)
+		if count == 4096 {
+			if isThereSeparator {
+				stringSlice = strings.Split(str, SEPARATOR)
+				lastPart = stringSlice[len(stringSlice) - 1]
+				stringSlice = stringSlice[:len(stringSlice) - 1]
+			} else {
+				lastPart = str
+				continue
+			}
+		} else {
+			if isThereSeparator {
+				temp := []byte(str)
+				stringSlice = strings.Split(string(temp[: lenLastPart + count]), SEPARATOR)
+			} else {
+				results = append(results, str)
+				continue
+			}
+		}
+		for _, str := range stringSlice {
+			results = append(results, str)
+		}
+	}
+	lastResult := results[len(results) - 1]
+	wasNotCommited := strings.Contains(lastResult, b.currentHash)
+	if wasNotCommited {
+		_ = b.file.Truncate(b.fileSize - int64(len(SEPARATOR + " " + lastResult)))
+		lastResult = results[len(results) - 2]
+	}
+	b.lastResult = bytes.NewBufferString(lastResult)
+}
 
 
 var global string
@@ -108,19 +155,13 @@ func main() {
 	benchObject.initFileSize()
 	benchObject.doHistoryExistInGit()
 	benchObject.fileExist()
-	po, _ := file.Stat()
-	fileSize := po.Size()
+	benchObject.currentHash = <-hash
+	benchObject.getLastBenchmark()
 
 
-
-
-	currentHash := <-hash
-	lastResult := getLastBenchmark(file, currentHash, fileSize)
-	var yu *bytes.Buffer
-	yu = bytes.NewBufferString(lastResult)
 	after := parseBenchmarkData(getCurrentResult())
-	before := parseBenchmarkData(yu)
-	file.Write([]byte("\n" + SEPARATOR + " " + currentHash))
+	before := parseBenchmarkData(benchObject.lastResult)
+	file.Write([]byte("\n" + SEPARATOR + " " + benchObject.currentHash))
 	file.Write([]byte("\n\n"+ global))
 
 	cmps, warnings := Correlate(before, after)
