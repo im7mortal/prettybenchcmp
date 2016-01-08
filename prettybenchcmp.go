@@ -30,12 +30,12 @@ var (
 const SEPARATOR = "yoshkarola"
 
 type benchmarkObject struct {
-	currentHash   string
-	file          *os.File
-	fileSize          int64
-	currentResult *bytes.Buffer
-	lastResult    *bytes.Buffer
-	isItInitialization    bool
+	currentHash        string
+	file               *os.File
+	fileSize           int64
+	currentBenchmark   *bytes.Buffer
+	lastBenchmark      *bytes.Buffer
+	isItInitialization bool
 }
 
 func (b *benchmarkObject) doHistoryExistInGit()  {
@@ -65,7 +65,7 @@ func (b *benchmarkObject) initFileSize() {
 
 func (b *benchmarkObject) fileExist() {
 	if b.fileSize == 0 {
-		result := getCurrentResult().Bytes()
+		result := []byte{}
 		if b.isItInitialization {
 			os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
 		}
@@ -123,11 +123,24 @@ func (b *benchmarkObject) getLastBenchmark() {
 		_ = b.file.Truncate(b.fileSize - int64(len(SEPARATOR + " " + lastResult)))
 		lastResult = results[len(results) - 2]
 	}
-	b.lastResult = bytes.NewBufferString(lastResult)
+	b.lastBenchmark = bytes.NewBufferString(lastResult)
 }
-
-
-var global string
+func (b *benchmarkObject) getCurrentBenchmark() {
+	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	var stdErr bytes.Buffer
+	cmd.Stderr = &stdErr
+	err := cmd.Run()
+	if err != nil {
+		fatal(fmt.Sprint(err) + ": " + stdErr.String())
+	}
+	b.currentBenchmark = &out
+}
+func (b *benchmarkObject) writeBenchmarkToFile() {
+	b.file.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
+	b.file.Write([]byte("\n\n"+ b.currentBenchmark.String()))
+}
 
 var hash = make(chan string)
 
@@ -139,10 +152,6 @@ func main() {
 	if err != nil {
 		fatal("git isn't exist\n" + fmt.Sprint(err) + ": " + stderr.String())
 	}
-	var currentResult chan *bytes.Buffer
-	go func() {
-		currentResult <- getCurrentResult()
-	}()
 	go getHash()
 	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
 	defer file.Close()
@@ -157,12 +166,14 @@ func main() {
 	benchObject.fileExist()
 	benchObject.currentHash = <-hash
 	benchObject.getLastBenchmark()
+	benchObject.getCurrentBenchmark()
+	benchObject.writeBenchmarkToFile()
 
 
-	after := parseBenchmarkData(getCurrentResult())
-	before := parseBenchmarkData(benchObject.lastResult)
-	file.Write([]byte("\n" + SEPARATOR + " " + benchObject.currentHash))
-	file.Write([]byte("\n\n"+ global))
+
+
+	after := parseBenchmarkData(benchObject.currentBenchmark)
+	before := parseBenchmarkData(benchObject.lastBenchmark)
 
 	cmps, warnings := Correlate(before, after)
 	for _, warn := range warnings {
@@ -293,38 +304,6 @@ func parseBenchmarkData(r io.Reader) (parse.Set) {
 	}
 	return bb
 }
-
-func getCurrentResult() *bytes.Buffer {
-	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	var stdErr bytes.Buffer
-	cmd.Stderr = &stdErr
-	err := cmd.Run()
-	if err != nil {
-		fatal(fmt.Sprint(err) + ": " + stdErr.String())
-	}
-	global = out.String()
-	return &out
-}
-
-
-func doHistoryExistInGit() bool {
-	//http://stackoverflow.com/questions/2405305/git-how-to-tell-if-a-file-is-git-tracked-by-shell-exit-code
-	cmd := exec.Command("git", "ls-files", ".benchHistory")
-
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-
-	}
-	return strings.Contains(out.String(), ".benchHistory")
-}
-
-
-
-
 
 func getHash() {
 	cmd := exec.Command("git", "log", "-1", "--pretty=tformat:%H", "-p", ".benchHistory")

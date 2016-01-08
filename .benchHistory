@@ -51,3 +51,10 @@ PASS
 BenchmarkGetLastBenchmark3651-4 	 3000000	       516 ns/op	       0 B/op	       0 allocs/op
 BenchmarkGetLastBenchmark24456-4	 3000000	       535 ns/op	       0 B/op	       0 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp	4.218s
+
+yoshkarola c671f8ea4d6e9f3919d9bdde64421a9c498574a6
+
+PASS
+BenchmarkGetLastBenchmark3651-4 	 3000000	       398 ns/op	       0 B/op	       0 allocs/op
+BenchmarkGetLastBenchmark24456-4	 3000000	       402 ns/op	       0 B/op	       0 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp	3.219s
