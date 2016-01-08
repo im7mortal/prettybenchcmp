@@ -35,6 +35,7 @@ type benchmarkObject struct {
 	fileSize          int64
 	currentResult *bytes.Buffer
 	lastResult    *bytes.Buffer
+	isItInitialization    bool
 }
 
 func (b *benchmarkObject) doHistoryExistInGit()  {
@@ -50,6 +51,32 @@ func (b *benchmarkObject) doHistoryExistInGit()  {
 	if !strings.Contains(out.String(), ".benchHistory") {
 		_ = b.file.Truncate(0)
 	}
+}
+
+func (b *benchmarkObject) initFileSize() {
+	po, _ := b.file.Stat()
+	b.fileSize = po.Size()
+	if b.fileSize == 0 {
+		b.isItInitialization = true
+	} else {
+		b.isItInitialization = false
+	}
+}
+
+func (b *benchmarkObject) fileExist() {
+	if b.fileSize == 0 {
+		result := getCurrentResult().Bytes()
+		if b.isItInitialization {
+			os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
+		}
+		os.Stdout.Write(result)
+		_, err := b.file.Write(result)
+		if err != nil {
+			os.Stdout.Write([]byte("\nRESULT WAS NOT WRITTEN. ERROR: " + err.Error()))
+		}
+		fatal("")
+	}
+
 }
 
 
@@ -78,19 +105,11 @@ func main() {
 	benchObject := benchmarkObject{
 		file: file,
 	}
+	benchObject.initFileSize()
 	benchObject.doHistoryExistInGit()
+	benchObject.fileExist()
 	po, _ := file.Stat()
 	fileSize := po.Size()
-	if fileSize == 0 {
-		result := getCurrentResult().Bytes()
-		os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
-		os.Stdout.Write(result)
-		_, err = file.Write(result)
-		if err != nil {
-			os.Stdout.Write([]byte("\nRESULT WAS NOT WRITTEN. ERROR: " + err.Error()))
-		}
-		return
-	}
 
 
 
