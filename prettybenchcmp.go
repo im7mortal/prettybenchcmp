@@ -20,9 +20,13 @@ import (
 )
 
 var (
-	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed")
-	magSort     = flag.Bool("mag", false, "sort benchmarks by magnitude of change")
-	best        = flag.Bool("best", false, "compare best times from old and new")
+	changedOnly		= flag.Bool("changed", false, "show only benchmarks that have changed")
+	magSort    		= flag.Bool("mag", false, "sort benchmarks by magnitude of change")
+	best       		= flag.Bool("best", false, "compare best times from old and new")
+	shortFlag   	= flag.Bool("short", false, "Tell long-running tests to shorten their run time")
+	benchtimeFlag	= flag.String("benchtime", "", "Tell long-running tests to shorten their run time")
+	countFlag   	= flag.String("count", "", "Tell long-running tests to shorten their run time")
+	cpuFlag   		= flag.String("cpu", "", "Tell long-running tests to shorten their run time")
 )
 
 // SEPARATOR contain string separator
@@ -126,7 +130,24 @@ func (b *benchmarkObject) getLastBenchmark() {
 	b.lastBenchmark = bytes.NewBufferString(lastResult)
 }
 func (b *benchmarkObject) getCurrentBenchmark() {
-	cmd := exec.Command("go", "test", "-bench=.", "-benchmem")
+	benchtimeValue := ""
+	if len(*benchtimeFlag) > 0 {
+		benchtimeValue = "-benchtime=" + *benchtimeFlag
+	}
+	countValue := ""
+	if len(*countFlag) > 0 {
+		countValue = "-count=" + *countFlag
+	}
+	cpuValue := ""
+	if len(*cpuFlag) > 0 {
+		cpuValue = "-cpu=" + *cpuFlag
+	}
+	shortValue := ""
+	if *shortFlag {
+		shortValue = "-short"
+	}
+	println("go", "test", "-bench=.", "-benchmem", shortValue, benchtimeValue, cpuValue, countValue)
+	cmd := exec.Command("go", "test", "-bench=.", "-benchmem", shortValue, benchtimeValue, cpuValue, countValue)
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stdErr bytes.Buffer
@@ -152,6 +173,7 @@ func main() {
 	if err != nil {
 		fatal("git isn't exist\n" + fmt.Sprint(err) + ": " + stderr.String())
 	}
+	flag.Parse()
 	go getHash()
 	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
 	defer file.Close()
