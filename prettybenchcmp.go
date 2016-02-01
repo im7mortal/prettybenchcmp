@@ -37,7 +37,7 @@ const SEPARATOR = "yoshkarola"
 type benchmarkObject struct {
 	currentHash        string
 	file               *os.File
-	buffer             *bufio.Reader
+	buffer             *bufio.ReadWriter
 	fileSize           int64
 	currentBenchmark   *bytes.Buffer
 	lastBenchmark      *bytes.Buffer
@@ -142,6 +142,10 @@ func (b *benchmarkObject) writeBenchmarkToFile() {
 	b.file.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
 	b.file.Write([]byte("\n\n" + b.currentBenchmark.String()))
 }
+func (b *benchmarkObject) writeBenchmarkToBenchLog() {
+	b.file.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
+	b.file.Write([]byte("\n\n" + b.currentBenchmark.String()))
+}
 
 var hash = make(chan string)
 
@@ -163,7 +167,7 @@ func main() {
 	benchObject := benchmarkObject{
 		file: file,
 	}
-	benchObject.buffer = bufio.NewReader(benchObject.file)
+	benchObject.buffer = NewBufioNewReadWriter(benchObject.file, benchObject.file)
 	benchObject.initFileSize()
 	benchObject.doHistoryExistInGit()
 	benchObject.fileExist()
@@ -324,4 +328,10 @@ func getHash() {
 	strA := strings.Split(str, "\n")
 	hash <- strA[0]
 	close(hash)
+}
+
+func NewBufioNewReadWriter(r io.Reader, w io.Writer) *bufio.ReadWriter{
+	reader := bufio.NewReader(r)
+	writer := bufio.NewWriter(w)
+	return bufio.NewReadWriter(reader, writer)
 }

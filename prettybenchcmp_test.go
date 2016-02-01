@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 	"bytes"
-	"bufio"
 
 	"golang.org/x/tools/benchmark/parse"
 )
@@ -38,7 +37,7 @@ ok  	github.com/im7mortal/prettybenchcmp	4.927s`)
 func TestParseBenchHistoryFirstTime(t *testing.T) {
 	testInstance := benchmarkObject{}
 	testInstance.currentHash = otherCommitHash
-	testInstance.buffer = bufio.NewReader(bytes.NewBufferString(coupleOfRecords))
+	testInstance.buffer = NewBufioNewReadWriter(bytes.NewBufferString(coupleOfRecords), bytes.NewBuffer([]byte{}))
 	testInstance.getLastBenchmark()
 	if testInstance.lastBenchmark.String() != secondRecord {
 		t.Errorf("TestParseBenchHistoryFirstTime")
@@ -48,7 +47,7 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 func TestParseBenchHistorySecondTime(t *testing.T) {
 	testInstance := benchmarkObject{}
 	testInstance.currentHash = sameCommitHash
-	testInstance.buffer = bufio.NewReader(bytes.NewBufferString(coupleOfRecords))
+	testInstance.buffer = NewBufioNewReadWriter(bytes.NewBufferString(coupleOfRecords), bytes.NewBuffer([]byte{}))
 	testInstance.getLastBenchmark()
 	if testInstance.lastBenchmark.String() != firstRecord {
 		t.Errorf("TestParseBenchHistorySecondTime")
