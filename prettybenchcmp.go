@@ -11,23 +11,23 @@ import (
 	"sort"
 	"strconv"
 	"text/tabwriter"
-
-	"golang.org/x/tools/benchmark/parse"
 	"os/exec"
 	"bytes"
 	"bufio"
 	"strings"
 	"io"
+
+	"golang.org/x/tools/benchmark/parse"
 )
 
 var (
-	changedOnly		= flag.Bool("changed", false, "show only benchmarks that have changed")
-	magSort    		= flag.Bool("mag", false, "sort benchmarks by magnitude of change")
-	best       		= flag.Bool("best", false, "compare best times from old and new")
-	shortFlag   	= flag.Bool("short", false, "Tell long-running tests to shorten their run time")
-	benchtimeFlag	= flag.String("benchtime", "", "Tell long-running tests to shorten their run time")
-	countFlag   	= flag.String("count", "", "Tell long-running tests to shorten their run time")
-	cpuFlag   		= flag.String("cpu", "", "Tell long-running tests to shorten their run time")
+	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed")
+	magSort = flag.Bool("mag", false, "sort benchmarks by magnitude of change")
+	best = flag.Bool("best", false, "compare best times from old and new")
+	shortFlag = flag.Bool("short", false, "Tell long-running tests to shorten their run time")
+	benchTimeFlag = flag.String("benchtime", "", "Tell long-running tests to shorten their run time")
+	countFlag = flag.String("count", "", "Tell long-running tests to shorten their run time")
+	cpuFlag = flag.String("cpu", "", "Tell long-running tests to shorten their run time")
 )
 
 // SEPARATOR contain string separator
@@ -37,14 +37,14 @@ const SEPARATOR = "yoshkarola"
 type benchmarkObject struct {
 	currentHash        string
 	file               *os.File
-	buffer              *bufio.Reader
+	buffer             *bufio.Reader
 	fileSize           int64
 	currentBenchmark   *bytes.Buffer
 	lastBenchmark      *bytes.Buffer
 	isItInitialization bool
 }
 
-func (b *benchmarkObject) doHistoryExistInGit()  {
+func (b *benchmarkObject) doHistoryExistInGit() {
 	//http://stackoverflow.com/questions/2405305/git-how-to-tell-if-a-file-is-git-tracked-by-shell-exit-code
 	cmd := exec.Command("git", "ls-files", ".benchHistory")
 
@@ -110,9 +110,9 @@ func (b *benchmarkObject) getLastBenchmark() {
 }
 
 func (b *benchmarkObject) getCurrentBenchmark() {
-	benchtimeValue := ""
-	if len(*benchtimeFlag) > 0 {
-		benchtimeValue = "-benchtime=" + *benchtimeFlag
+	benchTimeValue := ""
+	if len(*benchTimeFlag) > 0 {
+		benchTimeValue = "-benchtime=" + *benchTimeFlag
 	}
 	countValue := ""
 	if len(*countFlag) > 0 {
@@ -126,8 +126,8 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	if *shortFlag {
 		shortValue = "-short"
 	}
-	println("go", "test", "-bench=.", "-benchmem", shortValue, benchtimeValue, cpuValue, countValue)
-	cmd := exec.Command("go", "test", "-bench=.", "-benchmem", shortValue, benchtimeValue, cpuValue, countValue)
+	println("go", "test", "-bench=.", "-benchmem", shortValue, benchTimeValue, cpuValue, countValue)
+	cmd := exec.Command("go", "test", "-bench=.", "-benchmem", shortValue, benchTimeValue, cpuValue, countValue)
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stdErr bytes.Buffer
@@ -140,7 +140,7 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 }
 func (b *benchmarkObject) writeBenchmarkToFile() {
 	b.file.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
-	b.file.Write([]byte("\n\n"+ b.currentBenchmark.String()))
+	b.file.Write([]byte("\n\n" + b.currentBenchmark.String()))
 }
 
 var hash = make(chan string)
