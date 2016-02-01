@@ -15,6 +15,7 @@ import (
 	"golang.org/x/tools/benchmark/parse"
 	"os/exec"
 	"bytes"
+	"bufio"
 	"strings"
 	"io"
 )
@@ -36,6 +37,7 @@ const SEPARATOR = "yoshkarola"
 type benchmarkObject struct {
 	currentHash        string
 	file               *os.File
+	buffer              *bufio.Reader
 	fileSize           int64
 	currentBenchmark   *bytes.Buffer
 	lastBenchmark      *bytes.Buffer
@@ -183,6 +185,7 @@ func main() {
 	benchObject := benchmarkObject{
 		file: file,
 	}
+	benchObject.buffer = bufio.NewReader(benchObject.file)
 	benchObject.initFileSize()
 	benchObject.doHistoryExistInGit()
 	benchObject.fileExist()
