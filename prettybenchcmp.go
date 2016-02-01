@@ -85,52 +85,30 @@ func (b *benchmarkObject) fileExist() {
 
 }
 func (b *benchmarkObject) getLastBenchmark() {
-	results := make([]string, 1)
-	var lastPart string
-
-	for ;; {
-		scan := make([]byte, 4096)
-		count, err := b.file.Read(scan)
-		if err == io.EOF {
-			break
-		}
-		var str string
-		var stringSlice []string
-		str = string(scan)
-		str = lastPart + str
-		lenLastPart := len(lastPart)
-		lastPart = ""
-		isThereSeparator := strings.Contains(str, SEPARATOR)
-		if count == 4096 {
-			if isThereSeparator {
-				stringSlice = strings.Split(str, SEPARATOR)
-				lastPart = stringSlice[len(stringSlice) - 1]
-				stringSlice = stringSlice[:len(stringSlice) - 1]
+	lines := []string{}
+	scan := bufio.NewScanner(b.buffer)
+	scan.Split(bufio.ScanLines)
+	for scan.Scan() {
+		line := scan.Text()
+		if strings.Contains(line, SEPARATOR) {
+			if strings.Contains(line, b.currentHash) {
+				//it's current result. It mean that we have done already benchmarks. Get previous result
+				b.lastBenchmark = bytes.NewBufferString(strings.Join(lines, "\n"))
+				return
 			} else {
-				lastPart = str
-				continue
-			}
-		} else {
-			if isThereSeparator {
-				temp := []byte(str)
-				stringSlice = strings.Split(string(temp[: lenLastPart + count]), SEPARATOR)
-			} else {
-				results = append(results, str)
+				// it's older result. just reset array
+				lines = []string{}
 				continue
 			}
 		}
-		for _, str := range stringSlice {
-			results = append(results, str)
-		}
+		lines = append(lines, line)
 	}
-	lastResult := results[len(results) - 1]
-	wasNotCommited := strings.Contains(lastResult, b.currentHash)
-	if wasNotCommited {
-		_ = b.file.Truncate(b.fileSize - int64(len(SEPARATOR + " " + lastResult)))
-		lastResult = results[len(results) - 2]
+	if err := scan.Err(); err != nil {
+		fatal(err.Error())
 	}
-	b.lastBenchmark = bytes.NewBufferString(lastResult)
+	b.lastBenchmark = bytes.NewBufferString(strings.Join(lines, "\n"))
 }
+
 func (b *benchmarkObject) getCurrentBenchmark() {
 	benchtimeValue := ""
 	if len(*benchtimeFlag) > 0 {
@@ -346,52 +324,4 @@ func getHash() {
 	strA := strings.Split(str, "\n")
 	hash <- strA[0]
 	close(hash)
-}
-
-func getLastBenchmark(file *os.File, currentHash string, fileSize int64) string {
-	results := make([]string, 1)
-	var lastPart string
-
-	for ;; {
-		scan := make([]byte, 4096)
-		count, err := file.Read(scan)
-		if err == io.EOF {
-			break
-		}
-		var str string
-		var stringSlice []string
-		str = string(scan)
-		str = lastPart + str
-		lenLastPart := len(lastPart)
-		lastPart = ""
-		isThereSeparator := strings.Contains(str, SEPARATOR)
-		if count == 4096 {
-			if isThereSeparator {
-				stringSlice = strings.Split(str, SEPARATOR)
-				lastPart = stringSlice[len(stringSlice) - 1]
-				stringSlice = stringSlice[:len(stringSlice) - 1]
-			} else {
-				lastPart = str
-				continue
-			}
-		} else {
-			if isThereSeparator {
-				temp := []byte(str)
-				stringSlice = strings.Split(string(temp[: lenLastPart + count]), SEPARATOR)
-			} else {
-				results = append(results, str)
-				continue
-			}
-		}
-		for _, str := range stringSlice {
-			results = append(results, str)
-		}
-	}
-	lastResult := results[len(results) - 1]
-	wasNotCommited := strings.Contains(lastResult, currentHash)
-	if wasNotCommited {
-		_ = file.Truncate(fileSize - int64(len(SEPARATOR + " " + lastResult)))
-		lastResult = results[len(results) - 2]
-	}
-	return lastResult
 }
