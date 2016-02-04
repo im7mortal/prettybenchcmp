@@ -40,7 +40,8 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 	testInstance.buffer = NewBufioNewReadWriter(bytes.NewBufferString(coupleOfRecords), bytes.NewBuffer([]byte{}))
 	testInstance.getLastBenchmark()
 	if testInstance.lastBenchmark.String() != secondRecord {
-		t.Errorf("TestParseBenchHistoryFirstTime")
+		t.Errorf("We got \n======================\n" + testInstance.lastBenchmark.String() + "\n======================\n" +
+		"but expected \n======================\n" + secondRecord + "\n======================\n")
 	}
 }
 
@@ -50,7 +51,8 @@ func TestParseBenchHistorySecondTime(t *testing.T) {
 	testInstance.buffer = NewBufioNewReadWriter(bytes.NewBufferString(coupleOfRecords), bytes.NewBuffer([]byte{}))
 	testInstance.getLastBenchmark()
 	if testInstance.lastBenchmark.String() != firstRecord {
-		t.Errorf("TestParseBenchHistorySecondTime")
+		t.Errorf("We got \n======================\n" + testInstance.lastBenchmark.String() + "\n======================\n" +
+		"but expected \n======================\n" + firstRecord + "\n======================\n")
 	}
 }
 
