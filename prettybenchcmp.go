@@ -42,6 +42,8 @@ type benchmarkObject struct {
 	currentBenchmark   *bytes.Buffer
 	lastBenchmark      *bytes.Buffer
 	isItInitialization bool
+	wasNotBeforeCommit bool
+	truncate           int64
 }
 
 func (b *benchmarkObject) doHistoryExistInGit() {
@@ -86,15 +88,24 @@ func (b *benchmarkObject) fileExist() {
 }
 func (b *benchmarkObject) getLastBenchmark() {
 	lines := []string{}
+	tail := []string{}
 	scan := bufio.NewScanner(b.buffer)
 	scan.Split(bufio.ScanLines)
 	for scan.Scan() {
 		line := scan.Text()
+		//if you run prettybenchcmp before. It had rewritten tail of benchlog
+		if b.wasNotBeforeCommit {
+			tail = append(tail, line)
+			continue
+		}
 		if strings.Contains(line, SEPARATOR) {
 			if strings.Contains(line, b.currentHash) {
 				//it's current result. It mean that we have done already benchmarks. Get previous result
-				b.lastBenchmark = bytes.NewBufferString(strings.Join(lines, "\n"))
-				return
+				b.wasNotBeforeCommit = true
+				// "\n" from previous result
+				// second one is for "\n" from end of previous-current result
+				tail = append(tail, "\n" +  "\n" + line)
+				continue
 			} else {
 				// it's older result. just reset array
 				lines = []string{}
@@ -105,6 +116,11 @@ func (b *benchmarkObject) getLastBenchmark() {
 	}
 	if err := scan.Err(); err != nil {
 		fatal(err.Error())
+	}
+	if b.wasNotBeforeCommit {
+		b.truncate = int64(len(strings.Join(tail, "\n")))
+	} else {
+		b.truncate = 0
 	}
 	b.lastBenchmark = bytes.NewBufferString(strings.Join(lines, "\n"))
 }
@@ -138,13 +154,11 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	}
 	b.currentBenchmark = &out
 }
-func (b *benchmarkObject) writeBenchmarkToFile() {
-	b.file.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
-	b.file.Write([]byte("\n\n" + b.currentBenchmark.String()))
-}
+
 func (b *benchmarkObject) writeBenchmarkToBenchLog() {
-	b.file.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
-	b.file.Write([]byte("\n\n" + b.currentBenchmark.String()))
+	b.buffer.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
+	b.buffer.Write([]byte("\n\n" + b.currentBenchmark.String()))
+	b.buffer.Flush()
 }
 
 var hash = make(chan string)
@@ -174,9 +188,11 @@ func main() {
 	benchObject.currentHash = <-hash
 	benchObject.getLastBenchmark()
 	benchObject.getCurrentBenchmark()
-	benchObject.writeBenchmarkToFile()
+	err = file.Truncate(benchObject.fileSize - benchObject.truncate)
+	if err != nil {
 
-
+	}
+	benchObject.writeBenchmarkToBenchLog()
 
 
 	after := parseBenchmarkData(benchObject.currentBenchmark)

@@ -15,13 +15,13 @@ const otherCommitHash = "67f90910d610546ce1a4be8f971409178c63de5a"
 const firstRecord = `PASS
 BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard	 1000000	      1117 ns/op	     192 B/op	       2 allocs/op
-ok  	github.com/im7mortal/benchcmp2	3.146s` + "\n"
+ok  	github.com/im7mortal/benchcmp2	3.146s`
 
 const separator  = "\nyoshkarola " + sameCommitHash + "\n"
 
 const secondRecord = "\n" + `PASS
-BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
-BenchmarkUnquoteHard	 1000000	      1117 ns/op	     192 B/op	       2 allocs/op
+BenchmarkUnquoteEasy	10000000	       190 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard	 1000000	      1140 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/benchcmp2	3.146s`
 
 
@@ -29,11 +29,16 @@ var oneRecord = bytes.NewBufferString(firstRecord)
 
 var coupleOfRecords = firstRecord + separator + secondRecord
 
-var currentResult = bytes.NewBufferString(`PASS
+// i added "\n" in the end because "go test -bench=." return result with "\n" in the end
+var currentResult = `PASS
 BenchmarkUnquoteEasy	10000000	       185 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard	 2000000	       949 ns/op	     192 B/op	       2 allocs/op
-ok  	github.com/im7mortal/prettybenchcmp	4.927s`)
+ok  	github.com/im7mortal/prettybenchcmp	4.927s\n`
 
+var expectedWhenNew = coupleOfRecords + "\n\nyoshkarola " + otherCommitHash + "\n\n" + currentResult
+var expectedWhenRepeat = firstRecord + separator +"\n" + currentResult
+
+/*
 func TestParseBenchHistoryFirstTime(t *testing.T) {
 	testInstance := benchmarkObject{}
 	testInstance.currentHash = otherCommitHash
@@ -43,8 +48,31 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 		t.Errorf("We got \n======================\n" + testInstance.lastBenchmark.String() + "\n======================\n" +
 		"but expected \n======================\n" + secondRecord + "\n======================\n")
 	}
-}
 
+	// 0 it length of string which have to be truncate from file
+	if testInstance.truncate != 0 {
+		t.Errorf("In this case we expected testInstance.truncate = 0. As we have new benchmark\n")
+	}
+
+	// simulation of os.file.Truncate()
+	truncateResult := coupleOfRecords[:len(coupleOfRecords) - int(testInstance.truncate)]
+	currentBuffer := bytes.NewBufferString(truncateResult)
+
+	testInstance.buffer.Writer.Reset(currentBuffer)
+
+	testInstance.currentBenchmark = bytes.NewBufferString(currentResult)
+
+	testInstance.writeBenchmarkToBenchLog()
+
+	result := currentBuffer.String()
+	if result != expectedWhenNew {
+		t.Errorf("We got \n======================\n" + result + "\n======================\n" +
+		"but expected \n======================\n" + expectedWhenNew + "\n======================\n")
+	}
+}
+*/
+
+/*
 func TestParseBenchHistorySecondTime(t *testing.T) {
 	testInstance := benchmarkObject{}
 	testInstance.currentHash = sameCommitHash
@@ -54,7 +82,28 @@ func TestParseBenchHistorySecondTime(t *testing.T) {
 		t.Errorf("We got \n======================\n" + testInstance.lastBenchmark.String() + "\n======================\n" +
 		"but expected \n======================\n" + firstRecord + "\n======================\n")
 	}
+	// 260 it length of string which have to be truncate from file
+	if testInstance.truncate != 260 {
+		t.Errorf("In this case we expected testInstance.truncate = 260. As we already had bencmarcs before commit\n")
+	}
+
+	// simulation of os.file.Truncate()
+	truncateResult := coupleOfRecords[:len(coupleOfRecords) - int(testInstance.truncate)]
+	currentBuffer := bytes.NewBufferString(truncateResult)
+
+	testInstance.buffer.Writer.Reset(currentBuffer)
+
+	testInstance.currentBenchmark = bytes.NewBufferString(currentResult)
+
+	testInstance.writeBenchmarkToBenchLog()
+
+	result := currentBuffer.String()
+	if result != expectedWhenNew {
+		t.Errorf("We got \n======================\n" + result + "\n======================\n" +
+		"but expected \n======================\n" + expectedWhenRepeat + "\n======================\n")
+	}
 }
+*/
 
 
 func TestSelectBest(t *testing.T) {
