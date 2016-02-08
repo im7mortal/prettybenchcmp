@@ -132,7 +132,8 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	}
 	countValue := ""
 	if len(*countFlag) > 0 {
-		countValue = "-count=" + *countFlag
+		println("Count Flag isn't impemeted rightly for now.")
+		//countValue = "-count=" + *countFlag
 	}
 	cpuValue := ""
 	if len(*cpuFlag) > 0 {
