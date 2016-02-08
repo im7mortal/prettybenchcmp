@@ -343,7 +343,9 @@ func getHash() {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String()) //todo err from console
+		println("prettybenchcmpError: Couldn't get commit hash")
+		println(out.String())
+		os.Exit(1)
 	}
 	str := out.String()
 	strA := strings.Split(str, "\n")
