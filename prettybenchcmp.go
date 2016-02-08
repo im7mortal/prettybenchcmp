@@ -151,7 +151,10 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	cmd.Stderr = &stdErr
 	err := cmd.Run()
 	if err != nil {
-		fatal(fmt.Sprint(err) + ": " + stdErr.String())
+		println("prettybenchcmpError: Tests was failed")
+		println(out.String())
+		b.file.Close()
+		os.Exit(1)
 	}
 	b.currentBenchmark = &out
 }
