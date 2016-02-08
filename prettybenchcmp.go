@@ -82,7 +82,8 @@ func (b *benchmarkObject) fileExist() {
 		if err != nil {
 			os.Stdout.Write([]byte("\nRESULT WAS NOT WRITTEN. ERROR: " + err.Error()))
 		}
-		fatal("")
+		b.file.Close()
+		os.Exit(1)
 	}
 
 }
