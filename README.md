@@ -8,8 +8,8 @@ rename maybe to .benchmarkslog
 prettybenchcmp
 ===
 
-Prettybenchcmp is cmd tool for automated comparision of results of benchmarks.
-There are standart tool benchcmp. But it really akward to use for programmers 
+**prettybenchcmp** is cmd tool for automated comparison of results of benchmarks.
+There are standard tool benchcmp. But it really awkward to use for programmers 
 
 How to use
 -----
@@ -24,31 +24,22 @@ prettybenchcmp -short -benchtime 10s -count 2 -cpu 1,2,4 -changed -mag -best
 
 
 First time when you use it. It will create .benchLog file which exist 
-bench historu in the next format
+bench history in the special format. Check [format of .benchHistory](https://github.com/im7mortal/prettybenchcmp#Format-of-.benchHistory) for details
 
+It will return standard output of [benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp). Like:
 ```
-PASS
-BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
-BenchmarkUnquoteHard	 1000000	      1117 ns/op	     192 B/op	       2 allocs/op
-ok  	github.com/im7mortal/benchcmp2	3.146s
+benchmark                            old ns/op     new ns/op     delta
+BenchmarkGetLastBenchmark3651-4      1715          1736          +1.22%
+BenchmarkGetLastBenchmark24456-4     1703          1689          -0.82%
 
-yoshkarola 3235f14078c462b38c4b79912c1e34c868d34049
+benchmark                            old allocs     new allocs     delta
+BenchmarkGetLastBenchmark3651-4      3              3              +0.00%
+BenchmarkGetLastBenchmark24456-4     3              3              +0.00%
 
-PASS
-BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
-BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
-ok  	github.com/im7mortal/benchcmp2	3.141s
+benchmark                            old bytes     new bytes     delta
+BenchmarkGetLastBenchmark3651-4      4224          4224          +0.00%
+BenchmarkGetLastBenchmark24456-4     4224          4224          +0.00%
 ```
-
-Where "yoshkarola" is separator.
-Commit hash "3235f14078c462b38c4b79912c1e34c868d34049"
-
-PASS
-BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
-BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
-ok  	github.com/im7mortal/benchcmp2	3.141s
-
-Is body of benchmark.
 
 Supported flags from "go test"
 -----
@@ -77,7 +68,7 @@ How it work
 1) If file doesn't exist. 
 It create file. Do first benchmark and write it to file.
 
-2)  If file was inited. 
+2)  If file was initiated. 
 It clear file and write current benchmark
 
 3) If file has history
@@ -89,8 +80,18 @@ It check that file has hash of previous commit which exist .benchLog changes.
  else
  it truncate file part which exist previous benchmark
 
+Format of .benchHistory
+-----
 
+Where **yoshkarola** is separator.
+Commit hash "3235f14078c462b38c4b79912c1e34c868d34049"
 
+PASS
+BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/benchcmp2	3.141s
+
+Is body of benchmark.
 
 
 Authors
