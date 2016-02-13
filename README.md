@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/im7mortal/UTM.svg)](https://travis-ci.org/im7mortal/UTM)
+[![Build Status](https://travis-ci.org/im7mortal/prettybenchcmp.svg?branch=master)](https://travis-ci.org/im7mortal/UTM)
 [![Coverage Status](https://coveralls.io/repos/im7mortal/UTM/badge.svg?branch=master)](https://coveralls.io/r/im7mortal/UTM?branch=master)
 [![GoDoc](https://godoc.org/github.com/im7mortal/prettybenchcmp?status.svg)](https://godoc.org/github.com/im7mortal/prettybenchcmp)
 
