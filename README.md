@@ -19,7 +19,7 @@ prettybenchcmp
 prettybenchcmp -short -benchtime 10s -count 2 -cpu 1,2,4 -changed -mag -best
 ```
 
-First time when you use it. It will create .benchLog file which exist 
+First time when you use it. It will create *.benchHistory* file which exist 
 bench history in the special format. Check [format of .benchHistory](https://github.com/im7mortal/prettybenchcmp#Format-of-.benchHistory) for details
 
 It will return standard output of [benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp). Like:
@@ -39,7 +39,7 @@ BenchmarkGetLastBenchmark24456-4     4224          4224          +0.00%
 
 Supported flags from "go test"
 -----
-prettybenchcmp support couple of flags from ["go test"](https://golang.org/cmd/go/#hdr-Test_packages). It allow pass these flags
+**prettybenchcmp** support couple of flags from ["go test"](https://golang.org/cmd/go/#hdr-Test_packages). It allow pass these flags
 
 1. -benchtime
 2. -count
@@ -50,7 +50,7 @@ Check ["go test" documentation](https://golang.org/cmd/go/#hdr-Description_of_te
 
 Supported flags from benchcmp
 -----
-prettybenchcmp support all flags from [benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp).
+**prettybenchcmp** support all flags from [benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp).
 
 1. -mag
 2. -best
