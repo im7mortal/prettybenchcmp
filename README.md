@@ -1,6 +1,3 @@
-rename maybe to .benchmarkslog
-5) расскрасить в разные цвета
-
 [![Build Status](https://travis-ci.org/im7mortal/UTM.svg)](https://travis-ci.org/im7mortal/UTM)
 [![Coverage Status](https://coveralls.io/repos/im7mortal/UTM/badge.svg?branch=master)](https://coveralls.io/r/im7mortal/UTM?branch=master)
 [![GoDoc](https://godoc.org/github.com/im7mortal/prettybenchcmp?status.svg)](https://godoc.org/github.com/im7mortal/prettybenchcmp)
@@ -21,7 +18,6 @@ prettybenchcmp
 //or with test and benchcmp flags
 prettybenchcmp -short -benchtime 10s -count 2 -cpu 1,2,4 -changed -mag -best
 ```
-
 
 First time when you use it. It will create .benchLog file which exist 
 bench history in the special format. Check [format of .benchHistory](https://github.com/im7mortal/prettybenchcmp#Format-of-.benchHistory) for details
@@ -65,34 +61,43 @@ Check [benchcmp documentation](https://godoc.org/golang.org/x/tools/cmd/benchcmp
 How it work 
 -----
 
-1) If file doesn't exist. 
-It create file. Do first benchmark and write it to file.
+1. If *.benchHistory* doesn't exist. 
+ * It create *.benchHistory*. Do first benchmark and write it to *.benchHistory*.
 
-2)  If file was initiated. 
-It clear file and write current benchmark
+2. If *.benchHistory* exist but doesn't exist in git. 
+ * It clean *.benchHistory* and write current benchmark
 
-3) If file has history
-It parse file.
-If file exist and exist in git.
-It check that file has hash of previous commit which exist .benchLog changes.
- If false
- it write to file separator and previous commit which exist .benchLog changes and current benchmark
- else
- it truncate file part which exist previous benchmark
+3. If *.benchHistory* has history
+ * It parse *.benchHistory*.
+ * It check that file has a hash of previous commit which contain *.benchHistory* changes.
+ * If **true**
+   * it truncate part of file which contain previous benchmark
+ * else
+   * it write to file: a separator, previous hash commit which contain *.benchHistory* changes, current benchmark
 
 Format of .benchHistory
 -----
 
-Where **yoshkarola** is separator.
-Commit hash "3235f14078c462b38c4b79912c1e34c868d34049"
+```
+yoshkarola 3235f14078c462b38c4b79912c1e34c868d34049
 
 PASS
 BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/benchcmp2	3.141s
+```
 
-Is body of benchmark.
+Where **```yoshkarola```** is separator.
 
+**```3235f14078c462b38c4b79912c1e34c868d34049```** is commit hash where file *.benchHistory* was changed last time.
+
+Further is a standard output of ```go test -bench=. -benchmem```
+```
+PASS
+BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
+ok  	github.com/im7mortal/benchcmp2	3.141s
+```
 
 Authors
 -------
