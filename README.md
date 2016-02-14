@@ -6,7 +6,8 @@ prettybenchcmp
 
 **prettybenchcmp** is cmd tool for storage and comparison of benchmarks results. 
 There is [a standard tool benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp),
-but I doubt that the standard programmer will use it cuse it so boring!
+but I don't think that the standard programmer will use it because it so boring! Do you doubt? Ok, 
+just check instruction for benchcmp!
 **prettybenchcmp** simply automates routine and do it good!
 
 How to use
@@ -37,6 +38,10 @@ benchmark                            old bytes     new bytes     delta
 BenchmarkGetLastBenchmark3651-4      4224          4224          +0.00%
 BenchmarkGetLastBenchmark24456-4     4224          4224          +0.00%
 ```
+
+What exaactly different from benchcmp
+-----
+
 
 Supported flags from "go test"
 -----
