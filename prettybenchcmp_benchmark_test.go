@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 func BenchmarkGetLastBenchmark3651(b *testing.B) {

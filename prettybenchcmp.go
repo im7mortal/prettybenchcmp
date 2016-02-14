@@ -1,38 +1,38 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"sort"
 	"strconv"
-	"text/tabwriter"
-	"os/exec"
-	"bytes"
-	"bufio"
 	"strings"
-	"io"
+	"text/tabwriter"
 
 	"golang.org/x/tools/benchmark/parse"
 )
 
 var (
 	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed\n")
-	magSort = flag.Bool("mag", false, "sort benchmarks by magnitude of change\n")
-	best = flag.Bool("best", false, "compare best times from old and new\n")
-	shortFlag = flag.Bool("short", false, `Tell long-running tests to shorten their run time.
+	magSort     = flag.Bool("mag", false, "sort benchmarks by magnitude of change\n")
+	best        = flag.Bool("best", false, "compare best times from old and new\n")
+	shortFlag   = flag.Bool("short", false, `Tell long-running tests to shorten their run time.
 	It is off by default but set during all.bash so that installing
 	the Go tree can run a sanity check but not spend time running
-	exhaustive tests.` + "\n")
+	exhaustive tests.`+"\n")
 	benchTimeFlag = flag.String("benchtime", "", `Run enough iterations of each benchmark to take t, specified
 	as a time.Duration (for example, -benchtime 1h30s).
-	The default is 1 second (1s).` + "\n")
+	The default is 1 second (1s).`+"\n")
 	countFlag = flag.String("count", "", `Run each test and benchmark n times (default 1).
 	If -cpu is set, run n times for each GOMAXPROCS value.
-	Examples are always run once.` + "\n")
+	Examples are always run once.`+"\n")
 	cpuFlag = flag.String("cpu", "", `Specify a list of GOMAXPROCS values for which the tests or
 	benchmarks should be executed.  The default is the current value
-	of GOMAXPROCS.` + "\n")
+	of GOMAXPROCS.`+"\n")
 )
 
 // SEPARATOR contain string separator
@@ -108,7 +108,7 @@ func (b *benchmarkObject) getLastBenchmark() {
 				b.wasNotBeforeCommit = true
 				// "\n" from previous result
 				// second one is for "\n" from end of previous-current result
-				tail = append(tail, "\n" +  "\n" + line)
+				tail = append(tail, "\n"+"\n"+line)
 				continue
 			} else {
 				// it's older result. just reset array
@@ -181,7 +181,7 @@ func main() {
 	}
 	flag.Parse()
 	go getHash()
-	file, err := os.OpenFile(".benchHistory", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0777)
+	file, err := os.OpenFile(".benchHistory", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0777)
 	defer file.Close()
 	if err != nil {
 		fatal(err)
@@ -201,7 +201,6 @@ func main() {
 
 	}
 	benchObject.writeBenchmarkToBenchLog()
-
 
 	after := parseBenchmarkData(benchObject.currentBenchmark)
 	before := parseBenchmarkData(benchObject.lastBenchmark)
@@ -325,7 +324,7 @@ func formatNs(ns float64) string {
 	}
 	return strconv.FormatFloat(ns, 'f', prec, 64)
 }
-func parseBenchmarkData(r io.Reader) (parse.Set) {
+func parseBenchmarkData(r io.Reader) parse.Set {
 	bb, err := parse.ParseSet(r)
 	if err != nil {
 		fatal(err)
@@ -356,7 +355,7 @@ func getHash() {
 	close(hash)
 }
 
-func NewBufioNewReadWriter(r io.Reader, w io.Writer) *bufio.ReadWriter{
+func NewBufioNewReadWriter(r io.Reader, w io.Writer) *bufio.ReadWriter {
 	reader := bufio.NewReader(r)
 	writer := bufio.NewWriter(w)
 	return bufio.NewReadWriter(reader, writer)

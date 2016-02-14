@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
-	"bytes"
 
 	"golang.org/x/tools/benchmark/parse"
 )
@@ -17,13 +17,12 @@ BenchmarkUnquoteEasy	10000000	       182 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard	 1000000	      1117 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/benchcmp2	3.146s` + "\n"
 
-const separator  = "\nyoshkarola " + sameCommitHash + "\n\n"
+const separator = "\nyoshkarola " + sameCommitHash + "\n\n"
 
 const secondRecord = `PASS
 BenchmarkUnquoteEasy	10000000	       190 ns/op	       0 B/op	       0 allocs/op
 BenchmarkUnquoteHard	 1000000	      1140 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/benchcmp2	3.146s` + "\n"
-
 
 var oneRecord = bytes.NewBufferString(firstRecord)
 
@@ -43,9 +42,9 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 	testInstance.currentHash = otherCommitHash
 	testInstance.buffer = NewBufioNewReadWriter(bytes.NewBufferString(coupleOfRecords), bytes.NewBuffer([]byte{}))
 	testInstance.getLastBenchmark()
-	if testInstance.lastBenchmark.String() + "\n" != "\n" + secondRecord {
+	if testInstance.lastBenchmark.String()+"\n" != "\n"+secondRecord {
 		t.Errorf("We got \n======================\n" + testInstance.lastBenchmark.String() + "\n======================\n" +
-		"but expected \n======================\n" + "\n" + secondRecord + "\n======================\n")
+			"but expected \n======================\n" + "\n" + secondRecord + "\n======================\n")
 	}
 
 	// 0 it length of string which have to be truncate from file
@@ -54,7 +53,7 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 	}
 
 	// simulation of os.file.Truncate()
-	truncateResult := coupleOfRecords[:len(coupleOfRecords) - int(testInstance.truncate)]
+	truncateResult := coupleOfRecords[:len(coupleOfRecords)-int(testInstance.truncate)]
 	currentBuffer := bytes.NewBufferString(truncateResult)
 
 	testInstance.buffer.Writer.Reset(currentBuffer)
@@ -66,7 +65,7 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 	result := currentBuffer.String()
 	if result != expectedWhenNew {
 		t.Errorf("We got \n======================\n" + result + "\n======================\n" +
-		"but expected \n======================\n" + expectedWhenNew + "\n======================\n")
+			"but expected \n======================\n" + expectedWhenNew + "\n======================\n")
 	}
 }
 
@@ -77,7 +76,7 @@ func TestParseBenchHistorySecondTime(t *testing.T) {
 	testInstance.getLastBenchmark()
 	if testInstance.lastBenchmark.String() != firstRecord {
 		t.Errorf("We got \n======================\n" + testInstance.lastBenchmark.String() + "\n======================\n" +
-		"but expected \n======================\n" + firstRecord + "\n======================\n")
+			"but expected \n======================\n" + firstRecord + "\n======================\n")
 	}
 	// 260 it length of string which have to be truncate from file
 	println(testInstance.truncate)
@@ -86,7 +85,7 @@ func TestParseBenchHistorySecondTime(t *testing.T) {
 	}
 
 	// simulation of os.file.Truncate()
-	truncateResult := coupleOfRecords[:len(coupleOfRecords) - int(testInstance.truncate)]
+	truncateResult := coupleOfRecords[:len(coupleOfRecords)-int(testInstance.truncate)]
 	currentBuffer := bytes.NewBufferString(truncateResult)
 
 	testInstance.buffer.Writer.Reset(currentBuffer)
@@ -98,10 +97,9 @@ func TestParseBenchHistorySecondTime(t *testing.T) {
 	result := currentBuffer.String()
 	if result != expectedWhenRepeat {
 		t.Errorf("We got \n======================\n" + result + "\n======================\n" +
-		"but expected \n======================\n" + expectedWhenRepeat + "\n======================\n")
+			"but expected \n======================\n" + expectedWhenRepeat + "\n======================\n")
 	}
 }
-
 
 func TestSelectBest(t *testing.T) {
 	have := parse.Set{
