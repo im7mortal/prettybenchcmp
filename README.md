@@ -1,12 +1,13 @@
 [![Build Status](https://travis-ci.org/im7mortal/prettybenchcmp.svg?branch=master)](https://travis-ci.org/im7mortal/UTM)
-[![Coverage Status](https://coveralls.io/repos/im7mortal/UTM/badge.svg?branch=master)](https://coveralls.io/r/im7mortal/UTM?branch=master)
 [![GoDoc](https://godoc.org/github.com/im7mortal/prettybenchcmp?status.svg)](https://godoc.org/github.com/im7mortal/prettybenchcmp)
 
 prettybenchcmp
 ===
 
-**prettybenchcmp** is cmd tool for automated comparison of results of benchmarks.
-There are standard tool benchcmp. But it really awkward to use for programmers 
+**prettybenchcmp** is cmd tool for storage and comparison of benchmarks results. 
+There is [a standard tool benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp),
+but I doubt that the standard programmer will use it cuse it so boring!
+**prettybenchcmp** simply automates routine and do it good!
 
 How to use
 -----
