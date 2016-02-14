@@ -6,9 +6,9 @@ prettybenchcmp
 
 **prettybenchcmp** is cmd tool for storage and comparison of benchmarks results. 
 There is [a standard tool benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp),
-but I don't think that the standard programmer will use it because it so boring! Do you doubt? Ok, 
+but I don't think that the standard programmer will use it because it so boring! Do you doubt?:smirk: Ok, 
 just check instruction for benchcmp! or check ["What exactly different from benchcmp"](https://github.com/im7mortal/prettybenchcmp#what-exactly-different-from-benchcmp).
-**prettybenchcmp** simply automates routine and do it good!
+**prettybenchcmp** simply automates routine and do it good:sparkles:!
 
 How to use
 -----
@@ -41,8 +41,8 @@ BenchmarkGetLastBenchmark24456-4     4224          4224          +0.00%
 
 What exactly different from benchcmp
 -----
-**benchcmp** use temp files. The goofy moment is that you have to create it yourself.
-Furthermore you have to checkout git commits for it and do it carefully!
+**benchcmp** use temp files. The goofy moment is that you have to create it yourself:boom:.
+Furthermore you have to checkout git commits for it and do it carefully:heavy_exclamation_mark:
 
 Different is that **prettybenchcmp** don't use temp files and keep story in local file *.benchHistory*.
 It allow get actual result with one simple action! Enjoy!
