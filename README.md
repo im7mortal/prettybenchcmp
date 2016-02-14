@@ -7,7 +7,7 @@ prettybenchcmp
 **prettybenchcmp** is cmd tool for storage and comparison of benchmarks results. 
 There is [a standard tool benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp),
 but I don't think that the standard programmer will use it because it so boring! Do you doubt? Ok, 
-just check instruction for benchcmp! or check ["What exactly different from benchcmp"](https://github.com/im7mortal/prettybenchcmp#What-exactly-different-from-benchcmp)
+just check instruction for benchcmp! or check ["What exactly different from benchcmp"](https://github.com/im7mortal/prettybenchcmp#what-exactly-different-from-benchcmp).
 **prettybenchcmp** simply automates routine and do it good!
 
 How to use
@@ -22,7 +22,7 @@ prettybenchcmp -short -benchtime 10s -count 2 -cpu 1,2,4 -changed -mag -best
 ```
 
 First time when you use it. It will create *.benchHistory* file which exist 
-bench history in the special format. Check [format of .benchHistory](https://github.com/im7mortal/prettybenchcmp#Format-of-.benchHistory) for details
+bench history in the special format. Check [format of .benchHistory](https://github.com/im7mortal/prettybenchcmp#format-of-benchhistory) for details
 
 It will return standard output of [benchcmp](https://godoc.org/golang.org/x/tools/cmd/benchcmp). Like:
 ```
