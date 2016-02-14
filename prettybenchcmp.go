@@ -35,15 +35,16 @@ var (
 const SEPARATOR = "yoshkarola"
 
 type benchmarkObject struct {
-	currentHash        string
-	file               *os.File
-	buffer             *bufio.ReadWriter
-	fileSize           int64
-	currentBenchmark   *bytes.Buffer
-	lastBenchmark      *bytes.Buffer
-	isItInitialization bool
-	wasNotBeforeCommit bool
-	truncate           int64
+	currentHash           string
+	file                  *os.File
+	buffer                *bufio.ReadWriter
+	fileSize              int64
+	currentBenchmark      *bytes.Buffer
+	lastBenchmark         *bytes.Buffer
+	isItInitialization    bool
+	fileDoesNotExistInGit bool
+	wasNotBeforeCommit    bool
+	truncate              int64
 }
 
 func (b *benchmarkObject) doHistoryExistInGit() {
@@ -57,7 +58,7 @@ func (b *benchmarkObject) doHistoryExistInGit() {
 
 	}
 	if !strings.Contains(out.String(), ".benchHistory") {
-		_ = b.file.Truncate(0)
+		b.fileDoesNotExistInGit = true
 	}
 }
 
@@ -72,20 +73,17 @@ func (b *benchmarkObject) initFileSize() {
 }
 
 func (b *benchmarkObject) fileExist() {
-	if b.fileSize == 0 {
-		result := []byte{}
+	if b.fileDoesNotExistInGit {
 		if b.isItInitialization {
-			os.Stdout.Write([]byte("History is inited. Created .benchHistory."))
+			os.Stdout.Write([]byte("History is inited. Created .benchHistory.\n"))
 		}
-		os.Stdout.Write(result)
-		_, err := b.file.Write(result)
-		if err != nil {
-			os.Stdout.Write([]byte("\nRESULT WAS NOT WRITTEN. ERROR: " + err.Error()))
-		}
+		_ = b.file.Truncate(0)
+		b.getCurrentBenchmark()
+		b.buffer.Write([]byte(b.currentBenchmark.String()))
+		b.buffer.Flush()
 		b.file.Close()
 		os.Exit(1)
 	}
-
 }
 func (b *benchmarkObject) getLastBenchmark() {
 	lines := []string{}
