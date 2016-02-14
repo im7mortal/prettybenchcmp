@@ -45,7 +45,7 @@ What exactly different from benchcmp
 Furthermore you have to checkout git commits for it and do it carefully:heavy_exclamation_mark:
 
 Different is that **prettybenchcmp** don't use temp files and keep story in local file *.benchHistory*.
-It allow get actual result with one simple action! Enjoy!
+It allow get actual result with one simple action! Enjoy:star:!
 
 Supported flags from "go test"
 -----
