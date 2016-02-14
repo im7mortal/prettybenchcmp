@@ -17,13 +17,22 @@ import (
 )
 
 var (
-	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed")
-	magSort = flag.Bool("mag", false, "sort benchmarks by magnitude of change")
-	best = flag.Bool("best", false, "compare best times from old and new")
-	shortFlag = flag.Bool("short", false, "Tell long-running tests to shorten their run time")
-	benchTimeFlag = flag.String("benchtime", "", "Tell long-running tests to shorten their run time")
-	countFlag = flag.String("count", "", "Tell long-running tests to shorten their run time")
-	cpuFlag = flag.String("cpu", "", "Tell long-running tests to shorten their run time")
+	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed\n")
+	magSort = flag.Bool("mag", false, "sort benchmarks by magnitude of change\n")
+	best = flag.Bool("best", false, "compare best times from old and new\n")
+	shortFlag = flag.Bool("short", false, `Tell long-running tests to shorten their run time.
+	It is off by default but set during all.bash so that installing
+	the Go tree can run a sanity check but not spend time running
+	exhaustive tests.` + "\n")
+	benchTimeFlag = flag.String("benchtime", "", `Run enough iterations of each benchmark to take t, specified
+	as a time.Duration (for example, -benchtime 1h30s).
+	The default is 1 second (1s).` + "\n")
+	countFlag = flag.String("count", "", `Run each test and benchmark n times (default 1).
+	If -cpu is set, run n times for each GOMAXPROCS value.
+	Examples are always run once.` + "\n")
+	cpuFlag = flag.String("cpu", "", `Specify a list of GOMAXPROCS values for which the tests or
+	benchmarks should be executed.  The default is the current value
+	of GOMAXPROCS.` + "\n")
 )
 
 // SEPARATOR contain string separator
