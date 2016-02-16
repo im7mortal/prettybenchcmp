@@ -129,6 +129,58 @@ func (b *benchmarkObject) getLastBenchmark() {
 	b.lastBenchmark = bytes.NewBufferString(strings.Join(lines, "\n"))
 }
 
+type bench struct {
+	hash string
+	result string
+}
+
+var history []bench
+
+func (b *benchmarkObject) getHistory() {
+	scan := bufio.NewScanner(b.buffer)
+	scan.Split(scanSeparator)
+	// format of benchHistory isn't ideal
+	firstIteration := true
+	i := 0
+	for scan.Scan() {
+		res := scan.Text()
+		benchI := bench{}
+		if firstIteration {
+			benchI.result = res
+			benchI.hash = "previous current"
+			firstIteration= false
+			history = append(history, benchI)
+			continue
+		}
+		history[i].hash = res[0:40]
+		i++
+		benchI.hash = "previous current"
+		benchI.result = res[42:]
+		history = append(history, benchI)
+	}
+	for _, a := range history{
+		println(a.hash)
+	}
+}
+
+/**
+It's just full copy bufio.ScanLines except bytes.IndexByte was replaced bytes.Index with SEPARATOR
+ */
+func scanSeparator(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+	if i := bytes.Index(data, []byte(SEPARATOR)); i >= 0 {
+		return i + 11, data[0:i], nil
+	}
+	// If we're at EOF, we have a final, non-terminated line. Return it.
+	if atEOF {
+		return len(data), data, nil
+	}
+	// Request more data.
+	return 0, nil, nil
+}
+
 func (b *benchmarkObject) getCurrentBenchmark() {
 	benchTimeValue := ""
 	if len(*benchTimeFlag) > 0 {
