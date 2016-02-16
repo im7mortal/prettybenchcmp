@@ -160,6 +160,12 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 		b.file.Close()
 		os.Exit(1)
 	}
+	if strings.Contains(out.String(), " FAIL") {
+		println("prettybenchcmpError: one from benchmarks was failed")
+		println(out.String())
+		b.file.Close()
+		os.Exit(1)
+	}
 	b.currentBenchmark = &out
 }
 
