@@ -109,6 +109,19 @@ BenchmarkUnquoteHard	 1000000	      1119 ns/op	     192 B/op	       2 allocs/op
 ok  	github.com/im7mortal/benchcmp2	3.141s
 ```
 
+Using with benchviz
+-----
+
+You can get more comfy form with [benchviz](http://mindchunk.blogspot.ru/2013/05/visualizing-go-benchmarks-with-benchviz.html).
+benchviz generate svg
+
+```
+go install github.com/ajstarks/svgo/benchviz
+prettybenchcmp | benchviz > bench.svg
+```
+![benchmark svg](benchvizExample.svg)
+
+
 Authors
 -------
 
