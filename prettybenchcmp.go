@@ -221,12 +221,17 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	b.currentBenchmark = &out
 }
 
-func (b *benchmarkObject) writeBenchmarkToBenchLog() {
+func (b *benchmarkObject) writeBenchmarkToBenchHistory() {
 	b.buffer.Write([]byte("\n" + SEPARATOR + " " + b.currentHash))
 	b.buffer.Write([]byte("\n\n" + b.currentBenchmark.String()))
 	b.buffer.Flush()
 }
 
+func (b *benchmarkObject) fatal(msg interface{}) {
+	b.file.Close()
+	fmt.Fprintln(os.Stderr, msg)
+	os.Exit(1)
+}
 var hash = make(chan string)
 
 var benchObject benchmarkObject
@@ -258,23 +263,27 @@ func main() {
 		benchObject.getHistory()
 		renderInterface(&benchObject)
 	} else {
+		//get last benchmark
+		benchObject.getLastBenchmark()
+		//exec test for current benchmark
+		benchObject.getCurrentBenchmark()
+		// comparing and saving result
 		standardWay()
 	}
 
 }
 
 func standardWay() {
-	benchObject.getLastBenchmark()
-	benchObject.getCurrentBenchmark()
+	// clean old(uncommit) result from .benchHistory
 	err := benchObject.file.Truncate(benchObject.fileSize - benchObject.truncate)
 	if err != nil {
-
+		benchObject.fatal(err)
 	}
-	benchObject.writeBenchmarkToBenchLog()
+	benchObject.writeBenchmarkToBenchHistory()
 
 	after := parseBenchmarkData(benchObject.currentBenchmark)
 	before := parseBenchmarkData(benchObject.lastBenchmark)
-
+	// put chosen bencmarks to benchcmp
 	getBenchcmp(before, after)
 }
 

@@ -60,7 +60,7 @@ func TestParseBenchHistoryFirstTime(t *testing.T) {
 
 	testInstance.currentBenchmark = bytes.NewBufferString(currentResult)
 
-	testInstance.writeBenchmarkToBenchLog()
+	testInstance.writeBenchmarkToBenchHistory()
 
 	result := currentBuffer.String()
 	if result != expectedWhenNew {
@@ -92,7 +92,7 @@ func TestParseBenchHistorySecondTime(t *testing.T) {
 
 	testInstance.currentBenchmark = bytes.NewBufferString(currentResult)
 
-	testInstance.writeBenchmarkToBenchLog()
+	testInstance.writeBenchmarkToBenchHistory()
 
 	result := currentBuffer.String()
 	if result != expectedWhenRepeat {
