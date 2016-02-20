@@ -204,7 +204,6 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	if *shortFlag {
 		shortValue = "-short"
 	}
-	println("go", "test", "-bench=.", "-benchmem", shortValue, benchTimeValue, cpuValue, countValue)
 	cmd := exec.Command("go", "test", "-bench=.", "-benchmem", shortValue, benchTimeValue, cpuValue, countValue)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -266,7 +265,8 @@ func main() {
 
 	if *list {
 		benchObject.getHistory()
-		renderInterface(&benchObject)
+		renderInterface()
+		standardWay()
 	} else {
 		//get last benchmark
 		benchObject.getLastBenchmark()
@@ -277,6 +277,7 @@ func main() {
 	}
 
 }
+
 
 func standardWay() {
 	// clean old(uncommit) result from .benchHistory

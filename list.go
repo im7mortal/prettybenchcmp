@@ -5,44 +5,52 @@ import (
 	"log"
 
 	"github.com/jroimartin/gocui"
-	"time"
+	"bytes"
 )
 
 
 func init() {
 }
 
-func renderInterface(b *benchmarkObject) {
-	conductor.position = 0
-	conductor.arr = b.history
+var trigger = false
+
+
+func renderInterface() {
 	g := gocui.NewGui()
 	if err := g.Init(); err != nil {
 		log.Panicln(err)
 	}
 	defer g.Close()
-	println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-	println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-	println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-	println("lol")
 	g.SetLayout(layout)
 
-	fmt.Printf("%v\n", vGl)
-	fmt.Fprintln(vGl, b.choose())
 	g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		if conductor.position > 0 {
-			conductor.position--
+		if benchObject.listPosition > 0 {
+			benchObject.listPosition--
 		}
 		vGl.Clear()
-		fmt.Fprintln(vGl, b.choose())
+		fmt.Fprintln(vGl, benchObject.choose())
 		return nil
 	})
 	g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		if conductor.position < len(conductor.arr) - 1 {
-			conductor.position++
+		if benchObject.listPosition < len(benchObject.history) - 1 {
+			benchObject.listPosition++
 		}
 		vGl.Clear()
-		fmt.Fprintln(vGl, b.choose())
+		fmt.Fprintln(vGl, benchObject.choose())
 
+		return nil
+	})
+
+	g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		if trigger {
+			benchObject.currentBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
+			return quit(g, v)
+		} else {
+			benchObject.lastBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
+			trigger = true
+		}
+		vGl.Clear()
+		fmt.Fprintln(vGl, benchObject.choose())
 		return nil
 	})
 
@@ -54,18 +62,9 @@ func renderInterface(b *benchmarkObject) {
 		log.Panicln(err)
 	}
 
-	for ;; {
-		println("хуй")
-		time.Sleep(time.Second)
-	}
-
 
 }
 
-var conductor struct {
-	position int
-	arr      []bench
-}
 
 func (b *benchmarkObject) choose() (str string) {
 	str = ""
@@ -88,6 +87,7 @@ func layout(g *gocui.Gui) error {
 		}
 		v.Frame = false
 		vGl = v
+		fmt.Fprintln(vGl, benchObject.choose())
 	}
 	return nil
 }
