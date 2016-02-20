@@ -253,9 +253,20 @@ func main() {
 	benchObject.doHistoryExistInGit()
 	benchObject.fileExist()
 	benchObject.currentHash = <-hash
+
+	if *list {
+		benchObject.getHistory()
+		renderInterface(&benchObject)
+	} else {
+		standardWay()
+	}
+
+}
+
+func standardWay() {
 	benchObject.getLastBenchmark()
 	benchObject.getCurrentBenchmark()
-	err = file.Truncate(benchObject.fileSize - benchObject.truncate)
+	err := benchObject.file.Truncate(benchObject.fileSize - benchObject.truncate)
 	if err != nil {
 
 	}
