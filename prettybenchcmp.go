@@ -263,6 +263,58 @@ func main() {
 	after := parseBenchmarkData(benchObject.currentBenchmark)
 	before := parseBenchmarkData(benchObject.lastBenchmark)
 
+	getBenchcmp(before, after)
+}
+
+func fatal(msg interface{}) {
+	fmt.Fprintln(os.Stderr, msg)
+	os.Exit(1)
+}
+
+func selectBest(bs parse.Set) {
+	for name, bb := range bs {
+		if len(bb) < 2 {
+			continue
+		}
+		ord := bb[0].Ord
+		best := bb[0]
+		for _, b := range bb {
+			if b.NsPerOp < best.NsPerOp {
+				b.Ord = ord
+				best = b
+			}
+		}
+		bs[name] = []*parse.Benchmark{best}
+	}
+}
+
+// formatNs formats ns measurements to expose a useful amount of
+// precision. It mirrors the ns precision logic of testing.B.
+func formatNs(ns float64) string {
+	prec := 0
+	switch {
+	case ns < 10:
+		prec = 2
+	case ns < 100:
+		prec = 1
+	}
+	return strconv.FormatFloat(ns, 'f', prec, 64)
+}
+func parseBenchmarkData(r io.Reader) parse.Set {
+	bb, err := parse.ParseSet(r)
+	if err != nil {
+		fatal(err)
+	}
+	if *best {
+		selectBest(bb)
+	}
+	return bb
+}
+
+/**
+ * Put here all code from benchcmp
+ */
+func getBenchcmp(before, after parse.Set) {
 	cmps, warnings := Correlate(before, after)
 	for _, warn := range warnings {
 		fmt.Fprintln(os.Stderr, warn)
@@ -348,50 +400,7 @@ func main() {
 	}
 }
 
-func fatal(msg interface{}) {
-	fmt.Fprintln(os.Stderr, msg)
-	os.Exit(1)
-}
 
-func selectBest(bs parse.Set) {
-	for name, bb := range bs {
-		if len(bb) < 2 {
-			continue
-		}
-		ord := bb[0].Ord
-		best := bb[0]
-		for _, b := range bb {
-			if b.NsPerOp < best.NsPerOp {
-				b.Ord = ord
-				best = b
-			}
-		}
-		bs[name] = []*parse.Benchmark{best}
-	}
-}
-
-// formatNs formats ns measurements to expose a useful amount of
-// precision. It mirrors the ns precision logic of testing.B.
-func formatNs(ns float64) string {
-	prec := 0
-	switch {
-	case ns < 10:
-		prec = 2
-	case ns < 100:
-		prec = 1
-	}
-	return strconv.FormatFloat(ns, 'f', prec, 64)
-}
-func parseBenchmarkData(r io.Reader) parse.Set {
-	bb, err := parse.ParseSet(r)
-	if err != nil {
-		fatal(err)
-	}
-	if *best {
-		selectBest(bb)
-	}
-	return bb
-}
 
 func getHash() {
 	cmd := exec.Command("git", "log", "-1", "--pretty=tformat:%H", "-p", ".benchHistory")
