@@ -229,6 +229,9 @@ func (b *benchmarkObject) writeBenchmarkToBenchLog() {
 
 var hash = make(chan string)
 
+var benchObject benchmarkObject
+
+
 func main() {
 	cmd := exec.Command("git", "status")
 	var stderr bytes.Buffer
@@ -244,9 +247,7 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
-	benchObject := benchmarkObject{
-		file: file,
-	}
+	benchObject.file = file
 	benchObject.buffer = NewBufioNewReadWriter(benchObject.file, benchObject.file)
 	benchObject.initFileSize()
 	benchObject.doHistoryExistInGit()
