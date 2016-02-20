@@ -17,6 +17,9 @@ import (
 )
 
 var (
+	//flag render list of benchmarks for comparing
+	list = flag.Bool("list", false, "list\n")
+
 	changedOnly = flag.Bool("changed", false, "show only benchmarks that have changed\n")
 	magSort     = flag.Bool("mag", false, "sort benchmarks by magnitude of change\n")
 	best        = flag.Bool("best", false, "compare best times from old and new\n")
@@ -41,6 +44,7 @@ const SEPARATOR = "yoshkarola"
 
 type benchmarkObject struct {
 	currentHash           string
+	history               []bench
 	file                  *os.File
 	buffer                *bufio.ReadWriter
 	fileSize              int64
@@ -50,6 +54,7 @@ type benchmarkObject struct {
 	fileDoesNotExistInGit bool
 	wasNotBeforeCommit    bool
 	truncate              int64
+	listPosition              int
 }
 
 func (b *benchmarkObject) doHistoryExistInGit() {
@@ -149,18 +154,18 @@ func (b *benchmarkObject) getHistory() {
 			benchI.result = res
 			benchI.hash = "previous current"
 			firstIteration= false
-			history = append(history, benchI)
+			b.history = append(b.history, benchI)
 			continue
 		}
-		history[i].hash = res[0:40]
+		b.history[i].hash = res[0:40]
 		i++
 		benchI.hash = "previous current"
 		benchI.result = res[42:]
-		history = append(history, benchI)
+		b.history = append(b.history, benchI)
 	}
-	for _, a := range history{
+	/*for _, a := range b.history{
 		println(a.hash)
-	}
+	}*/
 }
 
 /**
