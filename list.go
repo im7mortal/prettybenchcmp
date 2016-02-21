@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"bytes"
 
 	"github.com/jroimartin/gocui"
-	"bytes"
+	//"github.com/fatih/color"
 )
 
 
@@ -24,16 +25,17 @@ func renderInterface() {
 	g.SetLayout(layout)
 
 	g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		if benchObject.listPosition > 0 {
-			benchObject.listPosition--
+		if benchObject.listPosition < len(benchObject.history) - 1 {
+			benchObject.listPosition++
 		}
 		vGl.Clear()
 		fmt.Fprintln(vGl, benchObject.choose())
 		return nil
 	})
 	g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		if benchObject.listPosition < len(benchObject.history) - 1 {
-			benchObject.listPosition++
+		// benchObject.lastBenchmarkPosition was init like -1
+		if benchObject.listPosition - 1 > benchObject.lastBenchmarkPosition {
+			benchObject.listPosition--
 		}
 		vGl.Clear()
 		fmt.Fprintln(vGl, benchObject.choose())
@@ -43,14 +45,24 @@ func renderInterface() {
 
 	g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
 		if trigger {
-			benchObject.currentBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
 			return quit(g, v)
 		} else {
-			benchObject.lastBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
-			trigger = true
+			// first argument don't be the current result
+			if benchObject.listPosition != len(benchObject.history) - 1 {
+				benchObject.lastBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
+				// first argument is "previous current". Second doesn't have sense
+				if benchObject.listPosition == len(benchObject.history) - 2 {
+					//trigger to get current result
+					benchObject.listPosition = len(benchObject.history) - 1
+					return quit(g, v)
+				}
+				benchObject.lastBenchmarkPosition = benchObject.listPosition
+				benchObject.listPosition++
+				trigger = true
+				vGl.Clear()
+				fmt.Fprintln(vGl, benchObject.choose())
+			}
 		}
-		vGl.Clear()
-		fmt.Fprintln(vGl, benchObject.choose())
 		return nil
 	})
 
@@ -68,13 +80,27 @@ func renderInterface() {
 
 func (b *benchmarkObject) choose() (str string) {
 	str = ""
-	for i, a := range b.history {
+	for i := len(b.history) - 1; i >= 0; i-- {
+		a := b.history[i]
 		if i == b.listPosition {
 			str += "[*]" + a.hash + "\n"
+		} else if i == b.lastBenchmarkPosition && trigger {
+			str += "[#]" + a.hash + "\n"
 		} else {
 			str += "[]" + a.hash + "\n"
 		}
 	}
+	/*
+	for i, a := range b.history {
+		if i == b.listPosition {
+			str += "[*]" + a.hash + "\n"
+		} else if i == b.lastBenchmarkPosition {
+			str += "[#]" + a.hash + "\n"
+		} else {
+			str += "[]" + a.hash + "\n"
+		}
+	}
+	*/
 	return
 }
 

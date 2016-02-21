@@ -55,6 +55,7 @@ type benchmarkObject struct {
 	wasNotBeforeCommit    bool
 	truncate              int64
 	listPosition              int
+	lastBenchmarkPosition              int
 }
 
 func (b *benchmarkObject) doHistoryExistInGit() {
@@ -163,9 +164,12 @@ func (b *benchmarkObject) getHistory() {
 		benchI.result = res[42:]
 		b.history = append(b.history, benchI)
 	}
-	/*for _, a := range b.history{
-		println(a.hash)
-	}*/
+	benchObject.truncate = int64(len(b.history[len(b.history) - 1].result) + 53)
+	b.history = append(b.history, bench{"current", ""})
+	// default listPosition is "previous current"
+	b.listPosition = len(b.history) - 2
+	// for condition KeyArrowDown in the list
+	b.lastBenchmarkPosition = -1
 }
 
 /**
@@ -266,6 +270,11 @@ func main() {
 	if *list {
 		benchObject.getHistory()
 		renderInterface()
+		if benchObject.listPosition != len(benchObject.history) - 1 {
+			benchObject.currentBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
+		} else {
+			benchObject.getCurrentBenchmark()
+		}
 		standardWay()
 	} else {
 		//get last benchmark
