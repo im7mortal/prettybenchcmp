@@ -14,6 +14,7 @@ import (
 	"text/tabwriter"
 
 	"golang.org/x/tools/benchmark/parse"
+	"github.com/im7mortal/prettybenchcmp/parseGitLog"
 )
 
 var (
@@ -54,8 +55,8 @@ type benchmarkObject struct {
 	fileDoesNotExistInGit bool
 	wasNotBeforeCommit    bool
 	truncate              int64
-	listPosition              int
-	lastBenchmarkPosition              int
+	listPosition          int
+	lastBenchmarkPosition int
 }
 
 func (b *benchmarkObject) doHistoryExistInGit() {
@@ -138,6 +139,7 @@ func (b *benchmarkObject) getLastBenchmark() {
 type bench struct {
 	hash string
 	result string
+	gitLog.Commit
 }
 
 var history []bench
@@ -165,12 +167,47 @@ func (b *benchmarkObject) getHistory() {
 		b.history = append(b.history, benchI)
 	}
 	benchObject.truncate = int64(len(b.history[len(b.history) - 1].result) + 53)
-	b.history = append(b.history, bench{"current", ""})
+	b.history = append(b.history, bench{"current", "", gitLog.Commit{}})
 	// default listPosition is "previous current"
 	b.listPosition = len(b.history) - 2
 	// for condition KeyArrowDown in the list
 	b.lastBenchmarkPosition = -1
+	b.cr()
 }
+
+// parsing of git log
+func (b *benchmarkObject) cr () {
+	// log  --no-color
+	cmd := exec.Command("git", "log","--date=rfc2822", "--date=rfc", ".benchHistory")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	var stdErr bytes.Buffer
+	cmd.Stderr = &stdErr
+	err := cmd.Run()
+	if err != nil {
+		println(err.Error())
+	}
+
+	commits, err := gitLog.Parse(out.String())
+	if err != nil {
+		os.Exit(1)
+		return
+	}
+	for _, commit := range commits {
+		for i, Bench := range b.history {
+			if commit.Hash == Bench.hash {
+				b.history[i] = bench{Bench.hash, Bench.result, commit}
+				break
+			}
+		}
+	}
+
+	for _, Bench := range b.history {
+		fmt.Printf("%f\n", Bench.Author)
+	}
+}
+
+
 
 /**
 It's just full copy bufio.ScanLines except bytes.IndexByte was replaced bytes.Index with SEPARATOR
