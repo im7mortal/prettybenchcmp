@@ -6,6 +6,8 @@ import (
 	"bytes"
 
 	"github.com/jroimartin/gocui"
+	"github.com/dustin/go-humanize"
+	"time"
 )
 
 
@@ -81,7 +83,7 @@ func (b *benchmarkObject) choose() (str string) {
 	str = ""
 	for i := len(b.history) - 1; i >= 0; i-- {
 		a := b.history[i]
-		stdString := fmt.Sprint(a.Date) + "\n" + a.Message + "\n"
+		stdString := humanize.Time(a.Date) + " (" + a.Date.Format(time.RFC822) + ")\n" + a.Message + "\n"
 		if a.hash == "current" {
 			stdString = "current\n"
 		}
@@ -96,30 +98,26 @@ func (b *benchmarkObject) choose() (str string) {
 			str += "[]" + stdString
 		}
 	}
-	/*
-	for i, a := range b.history {
-		if i == b.listPosition {
-			str += "[*]" + a.hash + "\n"
-		} else if i == b.lastBenchmarkPosition {
-			str += "[#]" + a.hash + "\n"
-		} else {
-			str += "[]" + a.hash + "\n"
-		}
-	}
-	*/
 	return
 }
 
 func layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
-	if v, err := g.SetView("hello", 0, 0, maxX, maxY); err != nil {
+	if v, err := g.SetView("list", 0, 0, maxX, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		v.Frame = false
 		vGl = v
 		fmt.Fprintln(vGl, benchObject.choose())
+	}
+	if v, err := g.SetView("helpLayout", maxX / 2, 0, maxX - maxX/4, maxY/4); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Frame = true
+		fmt.Fprintln(v, "lol")
 	}
 	return nil
 }
