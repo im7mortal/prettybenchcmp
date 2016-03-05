@@ -37,10 +37,23 @@ func Parse(log string) ([]Commit, error) {
 			return []Commit{}, err
 		}
 		commit.Date = date
-		commit.Message = res[endEmail + 41:]
+		commit.Message = strings.TrimSpace(res[endEmail + 41:])
 		commitsArray = append(commitsArray, commit)
 	}
 	return commitsArray, nil
+}
+
+func GetMap(Array []Commit, err error) (Map_ map[string]Commit, err_ error) {
+	Map := make(map[string]Commit)
+	Map_ = Map
+	if err != nil {
+		err_ = err
+		return
+	}
+	for _, commit := range Array{
+		Map[commit.Hash] = commit
+	}
+	return
 }
 
 /**

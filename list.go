@@ -6,7 +6,6 @@ import (
 	"bytes"
 
 	"github.com/jroimartin/gocui"
-	//"github.com/fatih/color"
 )
 
 
@@ -82,12 +81,19 @@ func (b *benchmarkObject) choose() (str string) {
 	str = ""
 	for i := len(b.history) - 1; i >= 0; i-- {
 		a := b.history[i]
+		stdString := fmt.Sprint(a.Date) + "\n" + a.Message + "\n"
+		if a.hash == "current" {
+			stdString = "current\n"
+		}
+		if a.hash == "previous current" {
+			stdString = "previous current\n"
+		}
 		if i == b.listPosition {
-			str += "[*]" + a.hash + "\n"
+			str += "[*]" + stdString
 		} else if i == b.lastBenchmarkPosition && trigger {
-			str += "[#]" + a.hash + "\n"
+			str += "[#]" + stdString
 		} else {
-			str += "[]" + a.hash + "\n"
+			str += "[]" + stdString
 		}
 	}
 	/*
@@ -107,7 +113,7 @@ func (b *benchmarkObject) choose() (str string) {
 func layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
-	if v, err := g.SetView("hello", 0, 0, maxX / 2 + 7, maxY / 2 + 2); err != nil {
+	if v, err := g.SetView("hello", 0, 0, maxX, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}

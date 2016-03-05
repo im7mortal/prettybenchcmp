@@ -175,6 +175,7 @@ func (b *benchmarkObject) getHistory() {
 }
 
 // parsing of git log
+// i have headache
 func (b *benchmarkObject) cr () {
 	// log  --no-color
 	cmd := exec.Command("git", "log","--date=rfc2822", "--date=rfc", ".benchHistory")
@@ -187,22 +188,16 @@ func (b *benchmarkObject) cr () {
 		println(err.Error())
 	}
 
-	commits, err := gitLog.Parse(out.String())
+	commits, err := gitLog.GetMap(gitLog.Parse(out.String()))
 	if err != nil {
 		os.Exit(1)
 		return
 	}
-	for _, commit := range commits {
-		for i, Bench := range b.history {
-			if commit.Hash == Bench.hash {
-				b.history[i] = bench{Bench.hash, Bench.result, commit}
-				break
-			}
+	for i, Bench := range b.history {
+		commit, ok := commits[Bench.hash]
+		if ok {
+			b.history[i] = bench{Bench.hash, Bench.result, commit}
 		}
-	}
-
-	for _, Bench := range b.history {
-		fmt.Printf("%f\n", Bench.Author)
 	}
 }
 
