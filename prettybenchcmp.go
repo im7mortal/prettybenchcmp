@@ -15,6 +15,7 @@ import (
 
 	"golang.org/x/tools/benchmark/parse"
 	"github.com/im7mortal/prettybenchcmp/parseGitLog"
+	"github.com/fatih/color"
 )
 
 var (
@@ -142,8 +143,6 @@ type bench struct {
 	gitLog.Commit
 }
 
-var history []bench
-
 func (b *benchmarkObject) getHistory() {
 	scan := bufio.NewScanner(b.buffer)
 	scan.Split(scanSeparator)
@@ -234,7 +233,7 @@ func (b *benchmarkObject) getCurrentBenchmark() {
 	}
 	countValue := ""
 	if len(*countFlag) > 0 {
-		println("Count Flag isn't impemeted rightly for now.")
+		fmt.Print(color.YellowString("Count Flag isn't impemeted rightly for now.\n"))
 		//countValue = "-count=" + *countFlag
 	}
 	cpuValue := ""
