@@ -69,13 +69,6 @@ ok  	github.com/im7mortal/prettybenchcmp	4.474s
 yoshkarola 71e060c3c676f244c57dd469d16c9d48df9c182f
 
 PASS
-BenchmarkGetLastBenchmark3651-4 	 3000000	       545 ns/op	     128 B/op	       2 allocs/op
-BenchmarkGetLastBenchmark24456-4	 3000000	       550 ns/op	     128 B/op	       2 allocs/op
-ok  	github.com/im7mortal/prettybenchcmp	4.404s
-
-yoshkarola 71e060c3c676f244c57dd469d16c9d48df9c182f
-
-PASS
 BenchmarkGetLastBenchmark3651-4 	 1000000	      1655 ns/op	    4224 B/op	       3 allocs/op
 BenchmarkGetLastBenchmark24456-4	 1000000	      1656 ns/op	    4224 B/op	       3 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp	3.352s
@@ -107,3 +100,10 @@ PASS
 BenchmarkGetLastBenchmark3651-4 	 1000000	      1347 ns/op	    4224 B/op	       3 allocs/op
 BenchmarkGetLastBenchmark24456-4	 1000000	      1370 ns/op	    4224 B/op	       3 allocs/op
 ok  	github.com/im7mortal/prettybenchcmp	2.752s
+
+yoshkarola c8365645e8733898d831203e140084034a8d0e6d
+
+PASS
+BenchmarkGetLastBenchmark3651-4 	 1000000	      1339 ns/op	    4224 B/op	       3 allocs/op
+BenchmarkGetLastBenchmark24456-4	 1000000	      1315 ns/op	    4224 B/op	       3 allocs/op
+ok  	github.com/im7mortal/prettybenchcmp	2.689s
