@@ -16,6 +16,8 @@ import (
 	"golang.org/x/tools/benchmark/parse"
 	"github.com/im7mortal/prettybenchcmp/parseGitLog"
 	"github.com/fatih/color"
+	"github.com/dustin/go-humanize"
+	"time"
 )
 
 var (
@@ -138,9 +140,14 @@ func (b *benchmarkObject) getLastBenchmark() {
 }
 
 type bench struct {
-	hash string
-	result string
-	gitLog.Commit
+	hash                  string
+	result                string
+	Hash                  string
+	Date                  time.Time
+	Email                 string
+	Author                string
+	Message               string
+	StandardStr           string
 }
 
 func (b *benchmarkObject) getHistory() {
@@ -166,17 +173,26 @@ func (b *benchmarkObject) getHistory() {
 		b.history = append(b.history, benchI)
 	}
 	benchObject.truncate = int64(len(b.history[len(b.history) - 1].result) + 53)
-	b.history = append(b.history, bench{"current", "", gitLog.Commit{}})
+	Bench := bench{}
+	Bench.hash = "current"
+	Bench.result = ""
+	b.history = append(b.history, Bench)
+	//reverse
+	reversArray := []bench{}
+	for i := len(b.history) - 1; i >= 0; i-- {
+		reversArray = append(reversArray, b.history[i])
+	}
+	b.history = reversArray
 	// default listPosition is "previous current"
-	b.listPosition = len(b.history) - 2
+	b.listPosition = 1
 	// for condition KeyArrowDown in the list
-	b.lastBenchmarkPosition = -1
-	b.cr()
+	b.lastBenchmarkPosition = len(b.history)
+	b.formList()
 }
 
 // parsing of git log
 // i have headache
-func (b *benchmarkObject) cr () {
+func (b *benchmarkObject) formList() {
 	// log  --no-color
 	cmd := exec.Command("git", "log","--date=rfc2822", "--date=rfc", ".benchHistory")
 	var out bytes.Buffer
@@ -196,7 +212,13 @@ func (b *benchmarkObject) cr () {
 	for i, Bench := range b.history {
 		commit, ok := commits[Bench.hash]
 		if ok {
-			b.history[i] = bench{Bench.hash, Bench.result, commit}
+			Bench.Hash = commit.Hash
+			Bench.Date = commit.Date
+			Bench.Email = commit.Email
+			Bench.Author = commit.Author
+			Bench.Message = commit.Message
+			Bench.StandardStr = humanize.Time(Bench.Date) + " (" + Bench.Date.Format(time.RFC822) + ")\n" + Bench.Message + "\n"
+			b.history[i] = Bench
 		}
 	}
 }
@@ -301,7 +323,7 @@ func main() {
 	if *list {
 		benchObject.getHistory()
 		renderInterface()
-		if benchObject.listPosition != len(benchObject.history) - 1 {
+		if benchObject.listPosition != 0 {
 			benchObject.currentBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
 		} else {
 			benchObject.getCurrentBenchmark()

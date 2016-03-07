@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"log"
 	"bytes"
+	"strings"
 
 	"github.com/jroimartin/gocui"
-	"github.com/dustin/go-humanize"
-	"time"
 )
 
 
@@ -19,6 +18,8 @@ var trigger = false
 
 func renderInterface() {
 	g := gocui.NewGui()
+	g.Mouse = true
+	g.Cursor = true
 	if err := g.Init(); err != nil {
 		log.Panicln(err)
 	}
@@ -26,18 +27,43 @@ func renderInterface() {
 	g.SetLayout(layout)
 
 	g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		if benchObject.listPosition < len(benchObject.history) - 1 {
-			benchObject.listPosition++
+		//remember about revers list index
+		if benchObject.listPosition == 1 {
+			return nil
 		}
+		_, y := vGl.Cursor()
+		//if target wasn't chosen. you can't choose "current" item
+		if y - 1 == 0 && !trigger {
+			return nil
+		}
+		if benchObject.listPosition - 1 > 0 {
+			benchObject.listPosition--
+		} else {
+			return nil
+		}
+		//get offset before moving of index
+		nextLine := benchObject.lineOffset("previous")
+		vGl.MoveCursor(0, -nextLine, false)
 		vGl.Clear()
 		fmt.Fprintln(vGl, benchObject.choose())
 		return nil
 	})
+
+
 	g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		// benchObject.lastBenchmarkPosition was init like -1
-		if benchObject.listPosition - 1 > benchObject.lastBenchmarkPosition {
-			benchObject.listPosition--
+		//remember about revers list index
+		if benchObject.listPosition == len(benchObject.history) - 1 {
+			return nil
 		}
+		//get offset before moving of index
+		nextLine := benchObject.lineOffset("next")
+		// benchObject.lastBenchmarkPosition was init like -1
+		if benchObject.listPosition + 1 < benchObject.lastBenchmarkPosition {
+			benchObject.listPosition++
+		} else {
+			return nil
+		}
+		vGl.MoveCursor(0, nextLine, false)
 		vGl.Clear()
 		fmt.Fprintln(vGl, benchObject.choose())
 
@@ -81,9 +107,9 @@ func renderInterface() {
 
 func (b *benchmarkObject) choose() (str string) {
 	str = ""
-	for i := len(b.history) - 1; i >= 0; i-- {
+	for i := 0; i < len(b.history); i++ {
 		a := b.history[i]
-		stdString := humanize.Time(a.Date) + " (" + a.Date.Format(time.RFC822) + ")\n" + a.Message + "\n"
+		stdString := a.StandardStr
 		if a.hash == "current" {
 			stdString = "current\n"
 		}
@@ -100,6 +126,26 @@ func (b *benchmarkObject) choose() (str string) {
 	}
 	return
 }
+func (b *benchmarkObject) lineOffset(course string) int {
+	var str string
+	for i := 0; i < len(b.history); i++ {
+		if i == b.listPosition {
+			if course == "next" {
+				if b.history[i].hash == "current" || b.history[i].hash == "previous current" {
+					return 1
+				}
+				str = b.history[i].StandardStr
+			} else if course == "previous" {
+				if b.history[i].hash == "current" || b.history[i].hash == "previous current" {
+					return 1
+				}
+				str = b.history[i].StandardStr
+			}
+			return strings.Count(str, "\n")
+		}
+	}
+	return 0
+}
 
 func layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
@@ -110,6 +156,12 @@ func layout(g *gocui.Gui) error {
 		}
 		v.Frame = false
 		vGl = v
+
+		vGl.SelBgColor = gocui.ColorBlue
+		vGl.SelFgColor = gocui.ColorCyan
+		vGl.Highlight = true
+		// set on second item; first item always "current"
+		vGl.SetCursor(0,1)
 		fmt.Fprintln(vGl, benchObject.choose())
 	}
 	if v, err := g.SetView("helpLayout", maxX / 2, 0, maxX - maxX/4, maxY/4); err != nil {
