@@ -28,15 +28,15 @@ func renderInterface() {
 
 	g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
 		//remember about revers list index
-		if benchObject.listPosition == 1 {
+		if benchObject.listPosition == 1 && !trigger {
 			return nil
 		}
 		_, y := vGl.Cursor()
 		//if target wasn't chosen. you can't choose "current" item
-		if y - 1 == 0 && !trigger {
+		if y == 1 && !trigger {
 			return nil
 		}
-		if benchObject.listPosition - 1 > 0 {
+		if benchObject.listPosition - 1 >= 0 {
 			benchObject.listPosition--
 		} else {
 			return nil
@@ -74,21 +74,21 @@ func renderInterface() {
 		if trigger {
 			return quit(g, v)
 		} else {
-			// first argument don't be the current result
-			if benchObject.listPosition != len(benchObject.history) - 1 {
-				benchObject.lastBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
-				// first argument is "previous current". Second doesn't have sense
-				if benchObject.listPosition == len(benchObject.history) - 2 {
-					//trigger to get current result
-					benchObject.listPosition = len(benchObject.history) - 1
-					return quit(g, v)
-				}
-				benchObject.lastBenchmarkPosition = benchObject.listPosition
-				benchObject.listPosition++
-				trigger = true
-				vGl.Clear()
-				fmt.Fprintln(vGl, benchObject.choose())
+			benchObject.lastBenchmark = bytes.NewBufferString(benchObject.history[benchObject.listPosition].result)
+			// first argument is "previous current". Second doesn't have sense
+			if benchObject.listPosition == 1 {
+				//trigger to get current result
+				benchObject.listPosition = 0
+				return quit(g, v)
 			}
+			benchObject.lastBenchmarkPosition = benchObject.listPosition
+			benchObject.listPosition--
+			//get offset before moving of index
+			nextLine := benchObject.lineOffset("previous")
+			vGl.MoveCursor(0, -nextLine, false)
+			trigger = true
+			vGl.Clear()
+			fmt.Fprintln(vGl, benchObject.choose())
 		}
 		return nil
 	})
@@ -120,6 +120,7 @@ func (b *benchmarkObject) choose() (str string) {
 			str += "[*]" + stdString
 		} else if i == b.lastBenchmarkPosition && trigger {
 			str += "[#]" + stdString
+			break
 		} else {
 			str += "[]" + stdString
 		}
